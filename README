@@ -1,0 +1,55 @@
+NAME
+    Data::DPath - Path based data manipulation
+
+SYNOPSIS
+     use Data::DPath;
+
+     my $dp = Data::DPath -> new( hash => {
+         this => {
+             that => {
+                 foo => 'bar'
+             },
+         }
+     } );
+
+     my $dataset = $dp -> find('/this/that/foo');
+
+     foreach my $node ($dataset -> get_nodelist) {
+         my $stringref = $node -> get_data;
+         print "$$stringref should be 'bar'\n";
+     }
+
+DESCRIPTION
+
+This is an early alpha release of Data::DPath.  The only axis that 
+should currently work is the child:: axis.  See the t/axis_child test 
+in the build directory for examples.
+
+New releases will be made in the 0.00_xx versions as new axes and other 
+parts of the DPath scheme are added (DPath is based on XPath and does 
+for Perl data structures what XPath does for XML).
+
+API
+    The API of Data::DPath is very similar to that of XML::XPath.
+
+  new()
+
+  $dataset = find($path, [$context])
+
+  $context = Data::DPath::Context -> new({ this => that });
+
+ACKNOWLEDGEMENTS
+
+The Data::DPath package is based on XML::XPath.  I took the XML::XPath 
+tarball and changed it into Data::DPath, for the most part.
+
+AUTHOR
+
+James G. Smith, <jsmith@cpan.org>
+
+COPYRIGHT
+
+Copyright (C) 2003   Texas A&M University.  All Rights Reserved
+
+This module is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.

@@ -1,0 +1,24 @@
+MANIFEST			This list of files
+Makefile.PL
+README
+lib/Data/DPath.pm
+lib/Data/DPath/Boolean.pm
+lib/Data/DPath/Builder.pm
+lib/Data/DPath/Context.pm
+lib/Data/DPath/DataParser.pm
+lib/Data/DPath/Expr.pm
+lib/Data/DPath/Function.pm
+lib/Data/DPath/Literal.pm
+lib/Data/DPath/LocationPath.pm
+lib/Data/DPath/Node.pm
+lib/Data/DPath/Node/Attribute.pm
+lib/Data/DPath/Node/Element.pm
+lib/Data/DPath/NodeSet.pm
+lib/Data/DPath/Number.pm
+lib/Data/DPath/Ops.pm
+lib/Data/DPath/Parser.pm
+lib/Data/DPath/Root.pm
+lib/Data/DPath/Step.pm
+lib/Data/DPath/Variable.pm
+t/axis_child.t
+t/axis_descendent.t
