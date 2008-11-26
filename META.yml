@@ -1,0 +1,27 @@
+---
+abstract: 'DPath is not XPath!'
+author:
+  - 'Steffen Schwigon, C<< <schwigon at cpan.org> >>'
+build_requires:
+  Test::More: 0
+distribution_type: module
+generated_by: 'Module::Install version 0.77'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Data-DPath
+no_index:
+  directory:
+    - inc
+    - t
+requires:
+  List::MoreUtils: 0
+  Moose: 0
+  MooseX::Declare: 0.02
+  Sub::Exporter: 0
+  parent: 0
+  perl: 5.01
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.01

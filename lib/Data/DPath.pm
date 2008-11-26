@@ -1,166 +1,182 @@
+use MooseX::Declare;
+
+use 5.010;
+
+class Data::DPath {
+
+        our $DEBUG = 0;
+
+        use Data::DPath::Path;
+        use Data::DPath::Context;
+        use Sub::Exporter -setup => { exports =>           [ 'dpath' ],
+                                      groups  => { all  => [ 'dpath' ] },
+                                    };
+
+        sub dpath {
+                my ($path) = @_;
+                return Data::DPath::Path->new(path => $path);
+        }
+
+        method get_context (Any $data, Str $path) {
+                return Data::DPath::Context->new(path => $path);
+        }
+
+        method match (Any $data, Str $path) {
+                my $dpath = new Data::DPath::Path(path => $path);
+                return $dpath->match($data);
+        }
+
+}
+
+# ------------------------------------------------------------
+
+# old school way so Module::Build can extract VERSION
+# must be after class {} declaration above, else namespaces double and universes collapse.
 package Data::DPath;
-
-use strict;
-use vars qw($VERSION $REVISION);
-
-$VERSION = '0.00_01';
-
-$Data::DPath::Namespaces = 0;  # = 1; in original XML::XPath
-$Data::DPath::Debug = 0;  # set in test scripts
-
-use Data::DPath::DataParser;
-use Data::DPath::Parser;
-use Data::DPath::Context;
-use IO::File;
-use Storable qw(nfreeze thaw);
-use base qw(Class::Container);
-use Params::Validate qw(:types);
-use Data::Dumper;
-
-__PACKAGE__->valid_params (
-    path_parser => { isa => 'Data::DPath::Parser',     optional => 1, },
-    data_parser => { isa => 'Data::DPath::DataParser', optional => 1, },
-);
-
-__PACKAGE__->contained_objects (
-    path_parser => 'Data::DPath::Parser',
-    data_parser => 'Data::DPath::DataParser',
-);
-
-# for testing
-#use Data::Dumper;
-
-sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
-
-    my(%args);
-
-    if ($#_ == 0) { # passed a scalar - let the data parser figure it out
-        $args{'string'} = $_[0];
-    }
-    else {
-        %args = (UNIVERSAL::isa($_[0], "HASH") ? %{$_[0]} : @_);
-    }
-
-    return $class -> SUPER::new(%args);
-}
-
-sub get_context { 
-    my $self = shift;
-
-    return $self -> {context} if defined $self -> {context};
-    return Data::DPath::Context -> new(
-        $self -> {data_parser} -> get_data
-    );
-}
-
-sub set_context {
-    my $self = shift;
-
-    $self -> {context} = shift;
-}
-
-sub find {
-    my $self = shift;
-    my $path = shift;
-    my $context = shift;
-    die "No path to find" unless $path;
-
-    $context = $self -> get_context unless defined $context;
-
-    if(!defined $context) {
-        # Still no context?   Need to parse...
-        $context = $self -> {data_parser} -> parse;
-        $self -> set_context($context);
-#        warn "CONTEXT:\n", Data::Dumper->Dumpxs([$context], ['context']);
-    }
-
-    my $parsed_path = $self->{path_parser}->parse($path);
-
-    return $parsed_path -> evaluate($context);
-}
-
-sub find {
-    my($self, $path, $context) = @_;
-
-    $context = $self -> get_context unless defined $context;
-
-    my $expr = $self -> {path_parser} -> parse($path);
-
-    return $expr -> evaluate($context);
-}
-
-sub findnodes {
-    my($self, $path, $context) = @_;
-
-    return $self -> find($path, $context);
-}
+our $VERSION = '0.01';
 
 1;
 
 __END__
 
+# Idea collection
+#
+# ::Tree
+#   ::Node   (references to current expressions)
+#     :: NodeSet   (collection of ::Node's)
+# ::Context
+#      same as ::NodeSet (?)
+# ::Step
+#       ::Step::Hashkey
+#       ::Step::Any
+#       ::Step::Parent
+#       ::Step::Filter::Grep
+#       ::Step::Filter::ArrayIndex
+# ::Expression (inside brackets)
+#    single int: array index
+#    else:       perl filter expression, as in grep, balanced quote
+#                $_ available
+# ::Grammar --> ::Step::(Hashkey, Any, Grep, ArrayIndex)
+#      ::Joins (path1 | path2)
+#      ::LocationPath vs. Path (first is a basic block, second the whole)
+#      // is just an empty step, make that empty step special, not the path string
+
+# Note, that hashes don't have an order, as they would have in XML documents.
+
+
+=pod
+
 =head1 NAME
 
-Data::DPath - Path based data manipulation
+Data::DPath - DPath is not XPath!
 
 =head1 SYNOPSIS
 
- use Data::DPath;
+    use Data::DPath 'dpath';
+    my $data  = {
+                 AAA  => { BBB => { CCC  => [ qw/ XXX YYY ZZZ / ] },
+                           RRR => { CCC  => [ qw/ RR1 RR2 RR3 / ] },
+                           DDD => { EEE  => [ qw/ uuu vvv www / ] },
+                         },
+                };
+    @resultlist = dpath('/AAA/BBB/CCC')->match($data);
+    # ( ['XXX', 'YYY', 'ZZZ'] )
+    
+    @resultlist = dpath('/AAA/*/CCC')->match($data);
+    # ( ['XXX', 'YYY', 'ZZZ'], [ 'RR1', 'RR2', 'RR3' ] )
+    
+    @resultlist = dpath('/AAA/BBB/CCC/../../DDD')->match($data);
+    # ( { EEE => [ qw/ uuu vvv www / ] } )
 
- my $dp = Data::DPath -> new( apache => Apache::Request->new($r) );
+See currently working paths in B<t/data_dpath.t>.
 
- my $dataset = $dp -> find('//*[@isa="Apache::Upload"]'); # find all uploads
+=head1 INSTALLATION
 
- foreach my $node ($dataset -> get_nodelist) {
-     print "Found: ", $node -> data -> name,
-              " as ", $node -> data -> filename, "\n";
- }
+ perl Makefile.PL
+ make
+ make test
+ make install
 
-=head1 API
+=head1 FUNCTIONS
 
-The API of Data::DPath is very similar to that of L<XML::XPath|XML::XPath>.
+=head2 dpath
 
-=head2 new()
+Meant as B<the> front end function for everyday use of Data::DPath. It
+takes a path string and returns a Data::DPath::Path object on which
+the match method can be called with data structures. See SYNOPSIS.
 
-=head2 dataset = find($path, [$context])
+=head1 METHODS
 
-=head2 dataset = findnodes($path, [$context])
+=head2 match($data, $path)
 
-=head2 findnodes_as_string($path, [$context])
+Returns all values in B<data> that match the B<path> as an array.
 
-Returns the data found reproduces as XML using Data::XMLDumper.
-The resulting XML may be used as the xml parameter to create a new 
-Data::DPath object.
+=head2 get_context($path)
 
-=head2 findvalue($path, [$context])
+Returns a Data::DPath::Context object that matches the path and can be
+used to incrementally dig into it.
 
-=head2 exists($path, [$context])
-
-=head2 matches($node, $path, [$context])
-
-=head2 getNodeText($path)
-
-=head2 setNodeText($path, $value)
-
-=head2 createNode($path)
-
-=head1 Data Object Model
-
-=head1 ACKNOWLEDGEMENTS
-
-The Data::DPath package is based on XML::XPath.  I took the XML::XPath 
-tarball and changed it into Data::DPath, for the most part.
 
 =head1 AUTHOR
 
-James G. Smith, <jsmith@cpan.org>
- 
-=head1 COPYRIGHT
- 
-Copyright (C) 2003   Texas A&M University.  All Rights Reserved
- 
-This module is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
+Steffen Schwigon, C<< <schwigon at cpan.org> >>
 
+=head1 BUGS
+
+Please report any bugs or feature requests to C<bug-data-dpath at
+rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Data-DPath>.  I will
+be notified, and then you'll automatically be notified of progress on
+your bug as I make changes.
+
+=head1 SUPPORT
+
+You can find documentation for this module with the perldoc command.
+
+    perldoc Data::DPath
+
+
+You can also look for information at:
+
+=over 4
+
+=item * RT: CPAN's request tracker
+
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Data-DPath>
+
+=item * AnnoCPAN: Annotated CPAN documentation
+
+L<http://annocpan.org/dist/Data-DPath>
+
+=item * CPAN Ratings
+
+L<http://cpanratings.perl.org/d/Data-DPath>
+
+=item * Search CPAN
+
+L<http://search.cpan.org/dist/Data-DPath>
+
+=back
+
+
+=head1 REPOSITORY
+
+The public repository is hosted on github:
+
+  git clone git://github.com/renormalist/data-dpath.git
+
+
+=head1 ACKNOWLEDGEMENTS
+
+
+=head1 COPYRIGHT & LICENSE
+
+Copyright 2008 Steffen Schwigon.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+
+=cut
+
+# End of Data::DPath

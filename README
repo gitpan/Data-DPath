@@ -1,55 +1,87 @@
 NAME
-    Data::DPath - Path based data manipulation
+    Data::DPath - DPath is not XPath!
 
 SYNOPSIS
-     use Data::DPath;
+        use Data::DPath 'dpath';
+        my $data  = {
+                     AAA  => { BBB => { CCC  => [ qw/ XXX YYY ZZZ / ] },
+                               RRR => { CCC  => [ qw/ RR1 RR2 RR3 / ] },
+                               DDD => { EEE  => [ qw/ uuu vvv www / ] },
+                             },
+                    };
+        @resultlist = dpath('/AAA/BBB/CCC')->match($data);
+        # ( ['XXX', 'YYY', 'ZZZ'] )
+        
+    @resultlist = dpath('/AAA/*/CCC')->match($data);
+        # ( ['XXX', 'YYY', 'ZZZ'], [ 'RR1', 'RR2', 'RR3' ] )
+        
+    @resultlist = dpath('/AAA/BBB/CCC/../../DDD')->match($data);
+        # ( { EEE => [ qw/ uuu vvv www / ] } )
 
-     my $dp = Data::DPath -> new( hash => {
-         this => {
-             that => {
-                 foo => 'bar'
-             },
-         }
-     } );
+    See currently working paths in t/data_dpath.t.
 
-     my $dataset = $dp -> find('/this/that/foo');
+INSTALLATION
+     perl Makefile.PL
+     make
+     make test
+     make install
 
-     foreach my $node ($dataset -> get_nodelist) {
-         my $stringref = $node -> get_data;
-         print "$$stringref should be 'bar'\n";
-     }
+FUNCTIONS
+  dpath
+    Meant as the front end function for everyday use of Data::DPath. It
+    takes a path string and returns a Data::DPath::Path object on which the
+    match method can be called with data structures. See SYNOPSIS.
 
-DESCRIPTION
+METHODS
+  match($data, $path)
+    Returns all values in data that match the path as an array.
 
-This is an early alpha release of Data::DPath.  The only axis that 
-should currently work is the child:: axis.  See the t/axis_child test 
-in the build directory for examples.
-
-New releases will be made in the 0.00_xx versions as new axes and other 
-parts of the DPath scheme are added (DPath is based on XPath and does 
-for Perl data structures what XPath does for XML).
-
-API
-    The API of Data::DPath is very similar to that of XML::XPath.
-
-  new()
-
-  $dataset = find($path, [$context])
-
-  $context = Data::DPath::Context -> new({ this => that });
-
-ACKNOWLEDGEMENTS
-
-The Data::DPath package is based on XML::XPath.  I took the XML::XPath 
-tarball and changed it into Data::DPath, for the most part.
+  get_context($path)
+    Returns a Data::DPath::Context object that matches the path and can be
+    used to incrementally dig into it.
 
 AUTHOR
+    Steffen Schwigon, "<schwigon at cpan.org>"
 
-James G. Smith, <jsmith@cpan.org>
+BUGS
+    Please report any bugs or feature requests to "bug-data-dpath at
+    rt.cpan.org", or through the web interface at
+    <http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Data-DPath>. I will be
+    notified, and then you'll automatically be notified of progress on your
+    bug as I make changes.
 
-COPYRIGHT
+SUPPORT
+    You can find documentation for this module with the perldoc command.
 
-Copyright (C) 2003   Texas A&M University.  All Rights Reserved
+        perldoc Data::DPath
 
-This module is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
+    You can also look for information at:
+
+    *   RT: CPAN's request tracker
+
+        <http://rt.cpan.org/NoAuth/Bugs.html?Dist=Data-DPath>
+
+    *   AnnoCPAN: Annotated CPAN documentation
+
+        <http://annocpan.org/dist/Data-DPath>
+
+    *   CPAN Ratings
+
+        <http://cpanratings.perl.org/d/Data-DPath>
+
+    *   Search CPAN
+
+        <http://search.cpan.org/dist/Data-DPath>
+
+REPOSITORY
+    The public repository is hosted on github:
+
+      git clone git://github.com/renormalist/data-dpath.git
+
+ACKNOWLEDGEMENTS
+COPYRIGHT & LICENSE
+    Copyright 2008 Steffen Schwigon.
+
+    This program is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
