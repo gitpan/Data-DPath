@@ -5,7 +5,7 @@ use 5.010;
 class Data::DPath {
 
         our $DEBUG = 0;
-        our $VERSION = '0.02';
+        our $VERSION = '0.03';
 
         use Data::DPath::Path;
         use Data::DPath::Context;
@@ -83,15 +83,35 @@ Data::DPath - DPath is not XPath!
     @resultlist = dpath('/AAA/*/CCC')->match($data);   # ( ['XXX', 'YYY', 'ZZZ'], [ 'RR1', 'RR2', 'RR3' ] )
     $resultlist = $data ~~ dpath '/AAA/*/CCC';         # [ ['XXX', 'YYY', 'ZZZ'], [ 'RR1', 'RR2', 'RR3' ] ]
 
+Various other example paths from C<t/data_dpath.t> (not neccessarily
+fitting to above data structure):
 
-See currently working paths in C<t/data_dpath.t>.
+    $data ~~ dpath '/AAA/*/CCC'
+    $data ~~ dpath '/AAA/BBB/CCC/../..'    # parents  (..)
+    $data ~~ dpath '//AAA'                 # anywhere (//)
+    $data ~~ dpath '//AAA/*'               # anywhere + anystep
+    $data ~~ dpath '//AAA/*[size == 3]'    # filter by arrays/hash size
+    $data ~~ dpath '//AAA/*[size != 3]'    # filter by arrays/hash size
+    $data ~~ dpath '/"EE/E"/CCC'           # quote strange keys
+    $data ~~ dpath '/AAA/BBB/CCC/*[1]'     # filter by array index
+    $data ~~ dpath '/AAA/BBB/CCC/*[ idx == 1 ]' # same, filter by array index
+    $data ~~ dpath '//AAA/BBB/*[key eq "CCC"]'  # filter by exact keys
+    $data ~~ dpath '//AAA/*[ key =~ m(CC) ]'    # filter by regex matching keys
+    $data ~~ dpath '//AAA/"*"[ key =~ /CC/ ]'   # when path is quoted, filter can contain slashes
+    $data ~~ dpath '//CCC/*[value eq "RR2"]'    # filter by values of hashes
 
-=head1 INSTALLATION
+See full details C<t/data_dpath.t>.
 
- perl Makefile.PL
- make
- make test
- make install
+=head1 ALPHA WARNING
+
+I still experiment in details of semantics, especially final names of
+the available filter functions and some edge cases like path steps
+with just filter, or similar.
+
+I will name this module v1.00 when I consider it stable.
+
+In the mean time the worst thing that might happen would be slightly
+changes to your dpaths. No current features will get lost.
 
 =head1 FUNCTIONS
 

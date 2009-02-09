@@ -1,4 +1,11 @@
 ChangeLog
+experiments/balanced.pl
+experiments/iterator.pl
+experiments/traverse.pl
+experiments/visitor.pl
+experiments/visitor2.pl
+experiments/visitor3.pl
+experiments/visitor4.pl
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
@@ -20,6 +27,7 @@ META.yml
 README
 t/00-load.t
 t/boilerplate.t
+t/cyclic_structures.t
 t/data_dpath.t
 t/op.t
 t/path.t
