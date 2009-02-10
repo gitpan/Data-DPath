@@ -3,7 +3,7 @@
 use 5.010;
 use strict;
 use warnings;
-use Test::More tests => 110;
+use Test::More tests => 115;
 use Test::Deep;
 use Data::DPath 'dpath';
 use Data::Dumper;
@@ -204,6 +204,15 @@ cmp_bag($resultlist, [
                       { BBB => { CCC => 'affe' } },
                      ], 'FILTER hash size >= 1' );
 
+$resultlist = $data ~~ dpath '//AAA[ size >= 3 ]'; # hash with >= 3 elements
+cmp_bag($resultlist, [
+                      {
+                       BBB => { CCC  => [ qw/ XXX YYY ZZZ / ] },
+                       RRR => { CCC  => [ qw/ RR1 RR2 RR3 / ] },
+                       DDD => { EEE  => [ qw/ uuu vvv www / ] },
+                      },
+                     ], 'FILTER hash size >= 3' );
+
 $resultlist = $data ~~ dpath '//AAA[size == 1]'; # hash with >= elements
 cmp_bag($resultlist, [
                       { BBB => { CCC => 'affe' } },
@@ -232,10 +241,20 @@ cmp_bag($resultlist, [ 'ZZZ', 'RR3' ], "ANYSTEP + FILTER int 2" );
 $resultlist = $data ~~ dpath '/AAA/*/CCC/*[ 2 ]';
 cmp_bag($resultlist, [ 'ZZZ', 'RR3' ], "ANYSTEP + FILTER int 2 whitespace" );
 
+$resultlist = $data ~~ dpath '/AAA/*/CCC/*[-1]';
+cmp_bag($resultlist, [ 'ZZZ', 'RR3' ], "ANYSTEP + FILTER int -1" );
+$resultlist = $data ~~ dpath '/AAA/*/CCC/*[ -1 ]';
+cmp_bag($resultlist, [ 'ZZZ', 'RR3' ], "ANYSTEP + FILTER int -1 whitespace" );
+
 $resultlist = $data ~~ dpath '//AAA/*/CCC/*[0]';
 cmp_bag($resultlist, [ 'XXX', 'RR1', 'affe' ], "ANYWHERE + ANYSTEP + FILTER int 0" );
 $resultlist = $data ~~ dpath '//AAA/*/CCC/*[ 0 ]';
 cmp_bag($resultlist, [ 'XXX', 'RR1', 'affe' ], "ANYWHERE + ANYSTEP + FILTER int 0 whitespace" );
+
+$resultlist = $data ~~ dpath '//AAA/*/CCC/*[-3]';
+cmp_bag($resultlist, [ 'XXX', 'RR1', ], "ANYWHERE + ANYSTEP + FILTER int -3" );
+$resultlist = $data ~~ dpath '//AAA/*/CCC/*[ -3 ]';
+cmp_bag($resultlist, [ 'XXX', 'RR1', ], "ANYWHERE + ANYSTEP + FILTER int -3 whitespace" );
 
 $resultlist = $data ~~ dpath '//AAA/*/CCC/*[2]';
 cmp_bag($resultlist, [ 'ZZZ', 'RR3' ], "ANYWHERE + ANYSTEP + FILTER int 2" );
@@ -570,9 +589,12 @@ $resultlist = $data ~~ dpath('//CCC/*[value eq "RR2"]');
 #print STDERR "resultlist = ", Dumper($resultlist);
 cmp_bag($resultlist, [ 'RR2' ], "ANYWHERE + ANYSTEP + FILTER eval value" );
 
+# print STDERR "**************************************************\n";
+# print STDERR "resultlist = ", Dumper($data ~~ dpath('//CCC/*[value eq "RR2"]')); # /..
 $resultlist = $data ~~ dpath('//CCC/*[value eq "RR2"]/..');
 #print STDERR "resultlist = ", Dumper($resultlist);
 cmp_bag($resultlist, [ [ 'RR1', 'RR2', 'RR3' ] ], "ANYWHERE + ANYSTEP + FILTER eval value + PARENT" );
+# print STDERR "**************************************************\n";
 
 $resultlist = $data ~~ dpath('//CCC/*[value eq "RR2"]/../..');
 #print STDERR "resultlist = ", Dumper($resultlist);
