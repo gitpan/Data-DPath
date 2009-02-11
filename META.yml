@@ -3,6 +3,7 @@ abstract: 'DPath is not XPath!'
 author:
   - 'Steffen Schwigon, C<< <schwigon at cpan.org> >>'
 build_requires:
+  Test::Deep: 0
   Test::More: 0
 distribution_type: module
 generated_by: 'Module::Install version 0.77'
@@ -26,4 +27,4 @@ requires:
   perl: 5.01
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.07
+version: 0.08
