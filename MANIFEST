@@ -1,11 +1,4 @@
 ChangeLog
-experiments/balanced.pl
-experiments/iterator.pl
-experiments/traverse.pl
-experiments/visitor.pl
-experiments/visitor2.pl
-experiments/visitor3.pl
-experiments/visitor4.pl
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
@@ -25,6 +18,7 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml
 README
+ref.out
 t/00-load.t
 t/boilerplate.t
 t/cyclic_structures.t
@@ -33,3 +27,4 @@ t/op.t
 t/path.t
 t/pod-coverage.t
 t/pod.t
+visit.out
