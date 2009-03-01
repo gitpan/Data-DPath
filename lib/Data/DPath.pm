@@ -23,11 +23,11 @@ class Data::DPath {
                 groups  => { all  => [ 'dpath' ] },
         };
 
-        method get_context (Any $data, Str $path) {
+        method get_context ($class: Any $data, Str $path) {
                 new Data::DPath::Context(path => $path);
         }
 
-        method match (Any $data, Str $path) {
+        method match ($class: Any $data, Str $path) {
                 Data::DPath::Path->new(path => $path)->match($data);
         }
 
@@ -37,7 +37,7 @@ class Data::DPath {
 
 # help the CPAN indexer
 package Data::DPath;
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 1;
 
@@ -251,9 +251,9 @@ On step C<FOO> it matches only those elements whose key is "CCC".
 =item C</FOO[key =~ m(CCC) ]>
 
 On step C<FOO> it matches only those elements whose key matches the
-regex C</CCC/>. It's actually just Perl code inside the filter but the
-C</> was avoided because it is the path separator, therefore the round
-parens around the regex.
+regex C</CCC/>. It is actually just Perl code inside the filter but
+the C</> was avoided because it is the path separator, therefore the
+round parens around the regex.
 
 =item C<//FOO/*[value eq "RR2"]>
 
@@ -266,7 +266,7 @@ Combine this with the parent step C<..>:
 Find such an element below C<FOO> where an element with value C<RR2>
 is contained.
 
-=item C<//FOO[size >= 3]>
+=item C<//FOO[size E<gt>= 3]>
 
 Find C<FOO> elements that are arrays or hashes of size 3 or bigger.
 
@@ -290,11 +290,14 @@ Here are some of them:
 
 Returns the current index inside array elements.
 
+Please note that the current matching elements might not be in a
+defined order if resulting from anything else than arrays.
+
 =item size
 
-Returns the size of the current element. If it is a hash ref it
-returns number of elements, if hashref it returns number of keys, if
-scalar it returns 1, everything else returns -1.
+Returns the size of the current element. If it is a arrayref it
+returns number of elements, if it's a hashref it returns number of
+keys, if it's a scalar it returns 1, everything else returns -1.
 
 =item key
 
@@ -445,7 +448,7 @@ The public repository is hosted on github:
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2008 Steffen Schwigon.
+Copyright 2008,2009 Steffen Schwigon.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
