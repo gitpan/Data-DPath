@@ -18,7 +18,6 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml
 README
-ref.out
 t/00-load.t
 t/boilerplate.t
 t/cyclic_structures.t
@@ -27,4 +26,3 @@ t/op.t
 t/path.t
 t/pod-coverage.t
 t/pod.t
-visit.out

@@ -26,8 +26,17 @@ sub size
 
 sub key
 {
-        #print STDERR "*** key ", Dumper($_ ? $_ : "UNDEF");
         no warnings 'uninitialized';
+        return (keys %$_)[0] if Scalar::Util::reftype $_  eq 'HASH';
+        return undef;
+}
+
+# same as key() + debug info
+sub _key
+{
+        no warnings 'uninitialized';
+        say "*** key ", Scalar::Util::reftype($_), " -- ", Dumper($_ ? $_ : "UNDEF");
+        say "        ", join (", ", keys %$_) if Scalar::Util::reftype $_  eq 'HASH';
         return (keys %$_)[0] if Scalar::Util::reftype $_  eq 'HASH';
         return undef;
 }
@@ -56,6 +65,11 @@ sub reftype {
         return Scalar::Util::reftype($_) if not $refname;
         return (Scalar::Util::reftype($_) eq $refname);
 }
+
+# sub parent, Eltern-Knoten liefern
+# nextchild, von parent und mir selbst
+# previous child
+# "." als aktueller Knoten, kind of "no-op", daran aber Filter verknüpfbar, löst //.[filter] und /.[filter]
 
 # IDEA: functions that return always true, but track stack of values, eg. last taken index
 #
