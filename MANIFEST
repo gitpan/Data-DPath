@@ -26,3 +26,4 @@ t/op.t
 t/path.t
 t/pod-coverage.t
 t/pod.t
+todo.org

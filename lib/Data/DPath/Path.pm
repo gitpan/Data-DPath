@@ -2,7 +2,7 @@ use MooseX::Declare;
 
 use 5.010;
 
-class Data::DPath::Path {
+class Data::DPath::Path is dirty {
 
         use Data::Dumper;
         use Data::DPath::Step;
@@ -12,15 +12,6 @@ class Data::DPath::Path {
                                       extract_delimited
                                       extract_bracketed
                              );
-
-        has path   => ( isa => "Str",      is  => "rw" );
-        has _steps => ( isa => "ArrayRef", is  => "rw", auto_deref => 1, lazy_build => 1 );
-
-        use overload '~~' => \&op_match;
-
-        method op_match($data, $rhs) {
-                return [ $self->match( $data ) ];
-        }
 
         sub unescape {
                 my ($str) = @_;
@@ -38,6 +29,18 @@ class Data::DPath::Path {
         }
 
         sub quoted { shift =~ m,^/["'],; }                                             # "
+
+        clean;
+
+        has path            => ( isa => "Str",      is => "rw" );
+        has _steps          => ( isa => "ArrayRef", is => "rw", auto_deref => 1, lazy_build => 1 );
+        has give_references => ( isa => "Int",      is => "rw", default => 0 );
+
+        use overload '~~' => \&op_match;
+
+        method op_match($data, $rhs) {
+                return [ $self->match( $data ) ];
+        }
 
         # essentially the Path parser
         method _build__steps {
@@ -92,7 +95,9 @@ class Data::DPath::Path {
         }
 
         method match($data) {
-                my $context = new Data::DPath::Context ( current_points => [ new Data::DPath::Point ( ref => \$data )] );
+                my $context = new Data::DPath::Context ( current_points  => [ new Data::DPath::Point ( ref => \$data )],
+                                                         give_references => $self->give_references,
+                                                       );
                 return $context->match($self);
         }
 }
@@ -111,6 +116,21 @@ Data::DPath::Path - Abstraction for a DPath.
 Take a string description, parse it, provide frontend methods.
 
 =head1 PUBLIC METHODS
+
+=head2 new ( %args )
+
+Constructor; creates instance.
+
+Args:
+
+=over 4
+
+=item give_references
+
+Default 0. If set to true value then results are references to the
+matched points in the data structure.
+
+=back
 
 =head2 match( $data )
 

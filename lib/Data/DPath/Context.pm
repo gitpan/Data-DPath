@@ -2,88 +2,12 @@ use MooseX::Declare;
 
 use 5.010;
 
-class Data::DPath::Context {
+class Data::DPath::Context is dirty {
 
         use Data::Dumper;
         use Data::DPath::Point;
         use List::MoreUtils 'uniq';
         use Scalar::Util 'reftype';
-
-        # Points are the collected pointers into the datastructure
-        has current_points => ( is  => "rw", isa => "ArrayRef", auto_deref => 1 );
-
-        method all {
-                return
-                    map { $$_ }
-                        uniq
-                            map {
-                                 defined $_ ? $_->ref : ()
-                                } $self->current_points;
-        }
-
-        # filter current results by array index
-        sub _filter_points_index {
-                my ($self, $index, @points) = @_;
-                return @points ? ($points[$index]) : ();
-        }
-
-        # filter current results by condition
-        sub _filter_points_eval {
-                my ($self, $filter, @points) = @_;
-                return () unless @points;
-                return @points unless defined $filter;
-
-                #print STDERR "_filter_points_eval: $filter | ".Dumper([ map { $_->ref } @points ]);
-                my @new_points;
-                {
-                        require Data::DPath::Filters;
-                        package Data::DPath::Filters;
-                        local our $idx = 0;
-                        @new_points =
-                            grep {
-                                    my $res;
-                                    my $p = $_;
-                                    local $_;
-                                    if ( defined $p->ref ) {
-                                            $_ = ${ $p->ref };
-                                            # say STDERR "* $_";
-                                            no warnings 'uninitialized'; # having non-fitting values is the norm
-                                            $res = eval $filter;
-                                            say STDERR $@ if $@;
-                                    } else {
-                                            $res = 0;
-                                    }
-                                    $idx++;
-                                    $res;
-                            } @points;
-                }
-                return @new_points;
-        }
-
-        sub _filter_points {
-                my ($self, $step, @points) = @_;
-
-                return () unless @points;
-
-                my $filter = $step->filter;
-                return @points unless defined $filter;
-
-                $filter =~ s/^\[\s*(.*?)\s*\]$/$1/; # strip brackets and whitespace
-
-                given ($filter) {
-                        when (/^-?\d+$/) {
-                                # say "INT Filter: $filter <-- ".Dumper(\(map { $_ ? $_->ref : () } @points));
-                                return $self->_filter_points_index($filter, @points); # simple array index
-                        }
-                        when (/\S/) {
-                                #say "EVAL Filter: $filter, ".Dumper(\(map {$_->ref} @points));
-                                return $self->_filter_points_eval($filter, @points); # full condition
-                        }
-                        default {
-                                return @points;
-                        }
-                }
-        }
 
         # only finds "inner" values; if you need the outer start value
         # then just wrap it into one more level of array brackets.
@@ -114,6 +38,81 @@ class Data::DPath::Context {
                 }
                 push @$out,  @newout;
                 return _any ($out, \@newin);
+        }
+
+        clean;
+
+        # Points are the collected pointers into the datastructure
+        has current_points  => ( isa => "ArrayRef", is => "rw", auto_deref => 1 );
+        has give_references => ( isa => "Int",      is => "rw", default => 0 );
+
+        method all {
+                return
+                    map { $self->give_references ? $_ : $$_ }
+                        uniq
+                            map {
+                                 defined $_ ? $_->ref : ()
+                                } $self->current_points;
+        }
+
+        # filter current results by array index
+        method _filter_points_index ($index, @points) {
+                return @points ? ($points[$index]) : ();
+        }
+
+        # filter current results by condition
+        method _filter_points_eval ($filter, @points) {
+                return () unless @points;
+                return @points unless defined $filter;
+
+                #print STDERR "_filter_points_eval: $filter | ".Dumper([ map { $_->ref } @points ]);
+                my @new_points;
+                {
+                        require Data::DPath::Filters;
+                        package Data::DPath::Filters;
+                        local our $idx = 0;
+                        @new_points =
+                            grep {
+                                    my $res;
+                                    my $p = $_;
+                                    local $_;
+                                    if ( defined $p->ref ) {
+                                            $_ = ${ $p->ref };
+                                            # say STDERR "* $_";
+                                            no warnings 'uninitialized'; # having non-fitting values is the norm
+                                            $res = eval $filter;
+                                            say STDERR $@ if $@;
+                                    } else {
+                                            $res = 0;
+                                    }
+                                    $idx++;
+                                    $res;
+                            } @points;
+                }
+                return @new_points;
+        }
+
+        method _filter_points ($step, Item @points) {
+                return () unless @points;
+
+                my $filter = $step->filter;
+                return @points unless defined $filter;
+
+                $filter =~ s/^\[\s*(.*?)\s*\]$/$1/; # strip brackets and whitespace
+
+                given ($filter) {
+                        when (/^-?\d+$/) {
+                                # say "INT Filter: $filter <-- ".Dumper(\(map { $_ ? $_->ref : () } @points));
+                                return $self->_filter_points_index($filter, @points); # simple array index
+                        }
+                        when (/\S/) {
+                                #say "EVAL Filter: $filter, ".Dumper(\(map {$_->ref} @points));
+                                return $self->_filter_points_eval($filter, @points); # full condition
+                        }
+                        default {
+                                return @points;
+                        }
+                }
         }
 
         method search($path) {
@@ -232,9 +231,27 @@ Data::DPath::Context - Abstraction for a current context that enables incrementa
 
 =head1 API METHODS
 
+=head2 new ( %args )
+
+Constructor; creates instance.
+
+Args:
+
+=over 4
+
+=item give_references
+
+Default 0. If set to true value then results are references to the
+matched points in the data structure.
+
+=back
+
 =head2 all
 
 Returns all values covered by current context.
+
+If C<give_references> is set to true value then results are references
+to the matched points in the data structure.
 
 =head2 search( $path )
 

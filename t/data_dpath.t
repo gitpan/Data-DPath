@@ -3,9 +3,9 @@
 use 5.010;
 use strict;
 use warnings;
-use Test::More tests => 133;
+use Test::More tests => 140;
 use Test::Deep;
-use Data::DPath 'dpath';
+use Data::DPath 'dpath', 'dpathr';
 use Data::Dumper;
 
 # local $Data::DPath::DEBUG = 1;
@@ -34,11 +34,20 @@ my $context;
 @resultlist = dpath('/AAA/BBB/CCC')->match($data);
 cmp_bag(\@resultlist, [ ['XXX', 'YYY', 'ZZZ'] ], "KEYs" );
 
+@resultlist = dpathr('/AAA/BBB/CCC')->match($data);
+cmp_bag(\@resultlist, [ \($data->{AAA}{BBB}{CCC}) ], "KEYs (REFERENCES)" );
+
 @resultlist = dpath('/AAA/./BBB/./CCC')->match($data);
 cmp_bag(\@resultlist, [ ['XXX', 'YYY', 'ZZZ'] ], "KEYs + NOSTEPs" );
 
+@resultlist = dpathr('/AAA/./BBB/./CCC')->match($data);
+cmp_bag(\@resultlist, [ \($data->{AAA}{BBB}{CCC}) ], "KEYs + NOSTEPs (REFERENCES)" );
+
 @resultlist = dpath('/AAA/BBB/CCC/..')->match($data);
 cmp_bag(\@resultlist, [ { CCC => ['XXX', 'YYY', 'ZZZ'] } ], "KEYs + PARENT" );
+
+@resultlist = dpathr('/AAA/BBB/CCC/..')->match($data);
+cmp_bag(\@resultlist, [ \($data->{AAA}{BBB}) ], "KEYs + PARENT (REFERENCES)" );
 
 @resultlist = dpath('/AAA/BBB/CCC/../.')->match($data);
 cmp_bag(\@resultlist, [ { CCC => ['XXX', 'YYY', 'ZZZ'] } ], "KEYs + PARENT + NOSTEP" );
@@ -67,6 +76,9 @@ cmp_bag(\@resultlist, [
                           DDD => { EEE => [ qw/ uuu vvv www / ] },
                          }
                         ], "KEYs + PARENT + PARENT" );
+
+@resultlist = dpathr('/AAA/BBB/CCC/../..')->match($data);
+cmp_bag(\@resultlist, [ \($data->{AAA}) ], "KEYs + PARENT + PARENT (REFERENCES)" );
 
 @resultlist = dpath('/AAA/././././BBB/./CCC/../././../././.')->match($data);
 cmp_bag(\@resultlist, [
@@ -137,11 +149,15 @@ cmp_bag($resultlist, [ 'affe' ], "ROOT + KEY + ANYWHEREs + KEY" );
 $resultlist = $data ~~ dpath '//some//else//CCC';
 cmp_bag($resultlist, [ 'affe' ], "ANYWHERE + KEYs + ANYWHEREs" );
 
+$resultlist = $data ~~ dpathr '//some//else//CCC';
+cmp_bag($resultlist, [ \($data->{some}{where}{else}{AAA}{BBB}{CCC}) ], "ANYWHERE + KEYs + ANYWHEREs (REFERENCES)" );
+
 # --------------------
 
 my $dpath = dpath('//AAA/*/CCC');
 $resultlist = $data ~~ $dpath;
 cmp_bag($resultlist, [ 'affe', ['XXX', 'YYY', 'ZZZ'], [ 'RR1', 'RR2', 'RR3' ] ], "ANYWHERE + KEYs + ANYSTEP with smartmatch and variable" );
+$dpath = dpath('///AAA/*/CCC');
 $resultlist = $data ~~ $dpath;
 cmp_bag($resultlist, [ 'affe', ['XXX', 'YYY', 'ZZZ'], [ 'RR1', 'RR2', 'RR3' ] ], "2xANYWHERE + KEYs + ANYSTEP with smartmatch and variable" );
 
@@ -149,6 +165,12 @@ $resultlist = $data ~~ dpath('//AAA/*/CCC');
 cmp_bag($resultlist, [ 'affe', ['XXX', 'YYY', 'ZZZ'], [ 'RR1', 'RR2', 'RR3' ] ], "ANYWHERE + KEYs + ANYSTEP with smartmatch and dpath()" );
 $resultlist = $data ~~ dpath('///AAA/*/CCC');
 cmp_bag($resultlist, [ 'affe', ['XXX', 'YYY', 'ZZZ'], [ 'RR1', 'RR2', 'RR3' ] ], "2xANYWHERE + KEYs + ANYSTEP with smartmatch and dpath()" );
+
+$resultlist = $data ~~ dpathr('///AAA/*/CCC');
+cmp_bag($resultlist, [ \($data->{some}{where}{else}{AAA}{BBB}{CCC}),
+                       \($data->{AAA}{BBB}{CCC}),
+                       \($data->{AAA}{RRR}{CCC}),
+                     ], "2xANYWHERE + KEYs + ANYSTEP with smartmatch and dpath() (REFERENCES)" );
 
 $resultlist = $data ~~ dpath('//AAA');
 cmp_bag($resultlist, [
@@ -684,7 +706,13 @@ my $data6 = bless [
                    [ qw( AAA BBB CCC DDD ) ],
                    [ 11, 22, 33 ],
                    {
-                    hot => { stuff => { ahead => [ qw( affe tiger fink star ) ] } } },
+                    hot => {
+                            stuff => {
+                                      ahead => [ qw( affe tiger fink star ) ],
+                                      ""    => "some value on empty key",
+                                     }
+                           }
+                   },
                   ], "Some::Funky::Stuff";
 
 $resultlist = $data6 ~~ dpath '/.[ isa("Foo::Bar") ]';
@@ -708,3 +736,5 @@ cmp_bag($resultlist, [
                       [ qw( affe tiger fink star ) ],
                      ], "ANYWHERE + NOSTEP + FILTER int" );
 
+$resultlist = $data6 ~~ dpath '//""/';
+cmp_bag($resultlist, [ "some value on empty key" ], "empty key");
