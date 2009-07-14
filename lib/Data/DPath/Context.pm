@@ -26,7 +26,7 @@ class Data::DPath::Context is dirty {
                 foreach my $point (@$in) {
                         my @values;
                         my $ref = $point->ref;
-                        given (reftype $$ref) {
+                        given (reftype $$ref // "") {
                                 when ('HASH')  { @values = values %{$$ref} }
                                 when ('ARRAY') { @values = @{$$ref}        }
                                 default        { next }
@@ -160,7 +160,7 @@ class Data::DPath::Context is dirty {
                                                 # take point as array
                                                 my $ref = ${$point->ref};
                                                 my @step_points = ();
-                                                given (reftype $ref) {
+                                                given (reftype $ref // "") {
                                                         when ('HASH')
                                                         {
                                                                 @step_points = map {
