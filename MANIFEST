@@ -28,3 +28,7 @@ t/pod-coverage.t
 t/pod.t
 todo.org
 xt/alltest.t
+xt/best_of.t
+xt/large_data.t
+xt/pod-coverage.t
+xt/pod.t
