@@ -44,7 +44,7 @@ class Data::DPath is dirty {
 
 # help the CPAN indexer
 package Data::DPath;
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 1;
 
@@ -82,8 +82,7 @@ fitting to above data structure):
     $data ~~ dpath '/AAA/BBB/CCC/*[ idx == 1 ]' # same, filter by array index
     $data ~~ dpath '//AAA/BBB/*[key eq "CCC"]'  # filter by exact keys
     $data ~~ dpath '//AAA/*[ key =~ m(CC) ]'    # filter by regex matching keys
-    $data ~~ dpath '//AAA/"*"[ key =~ /CC/ ]'   # when path is quoted, filter can contain slashes
-    $data ~~ dpath '//CCC/*[value eq "RR2"]'    # filter by values of hashes
+    $data ~~ dpath '//CCC/*[ value eq "RR2" ]'  # filter by values of hashes
 
 You can get references into the C<$data> data structure by using C<dpathr>:
 
@@ -270,6 +269,14 @@ Whereas L<Data::DPath|Data::DPath> provides more XPath like features
 but regarding speed and Perl compatibility suffers a bit from it's
 new-school dependency stack: Perl 5.10+, Moose and MooseX::Declare.
 
+=head1 Security warning
+
+B<Watch out!> This module C<eval>s parts of provided dpaths (filter
+expressions). Don't use it if you don't trust your paths.
+
+Maybe I will provide a switch-off-complex-filtering option in a later
+version. Tell me what you think or when you need it.
+
 =head1 FUNCTIONS
 
 =head2 dpath( $path )
@@ -325,7 +332,6 @@ your code more readable.
  /AAA/BBB/CCC/*[ idx == 1 ]
  //AAA/BBB/*[key eq "CCC"]
  //AAA/*[ key =~ m(CC) ]
- //AAA/"*"[ key =~ /CC/ ]
  //CCC/*[value eq "RR2"]
  //.[ size == 4 ]
  /.[ isa("Funky::Stuff") ]/.[ size == 5 ]/.[ reftype eq "ARRAY" ]
@@ -442,16 +448,17 @@ The C<*> is a step that matches all elements after C<FOO>, but with
 the filter only those elements are chosen that are of index 2. This is
 actually the same as just C</FOO/*[2]>.
 
-=item C</FOO[key eq "CCC"]>
+=item C</FOO/*[key eq "CCC"]>
 
-On step C<FOO> it matches only those elements whose key is "CCC".
+In all elements after C<FOO> it matches only those elements whose key
+is "CCC".
 
-=item C</FOO[key =~ m(CCC) ]>
+=item C</FOO/*[key =~ m(CCC) ]>
 
-On step C<FOO> it matches only those elements whose key matches the
-regex C</CCC/>. It is actually just Perl code inside the filter but
-the C</> was avoided because it is the path separator, therefore the
-round parens around the regex.
+In all elements after step C<FOO> it matches only those elements whose
+key matches the regex C</CCC/>. It is actually just Perl code inside
+the filter but the C</> was avoided because it is the path separator,
+therefore the round parens around the regex.
 
 =item C<//FOO/*[value eq "RR2"]>
 

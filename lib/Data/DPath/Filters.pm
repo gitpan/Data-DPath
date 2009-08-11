@@ -8,6 +8,7 @@ use Data::Dumper;
 use Scalar::Util;
 
 our $idx;
+our $p;   # current point
 
 sub affe {
         return $_ eq 'affe' ? 1 : 0;
@@ -27,18 +28,7 @@ sub size
 sub key
 {
         no warnings 'uninitialized';
-        return (keys %$_)[0] if Scalar::Util::reftype $_  eq 'HASH';
-        return undef;
-}
-
-# same as key() + debug info
-sub _key
-{
-        no warnings 'uninitialized';
-        say "*** key ", Scalar::Util::reftype($_), " -- ", Dumper($_ ? $_ : "UNDEF");
-        say "        ", join (", ", keys %$_) if Scalar::Util::reftype $_  eq 'HASH';
-        return (keys %$_)[0] if Scalar::Util::reftype $_  eq 'HASH';
-        return undef;
+        return $p->attrs->{key};
 }
 
 sub value
@@ -114,8 +104,11 @@ scalar it returns 1, everything else returns -1.
 
 =head2 key
 
-Returns the key of the current element if it is a hashref. Else it
-returns undef.
+If it is a hashref returns the key under which the current element is
+associated as value. Else it returns undef.
+
+This gives the key() function kind of a "look back" behaviour because
+the associated point is already after that key.
 
 =head2 value
 

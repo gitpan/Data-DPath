@@ -27,13 +27,14 @@ class Data::DPath::Context is dirty {
                         my @values;
                         my $ref = $point->ref;
                         given (reftype $$ref // "") {
-                                when ('HASH')  { @values = values %{$$ref} }
-                                when ('ARRAY') { @values = @{$$ref}        }
+                                when ('HASH')  { @values = map { { val => $$ref->{$_}, key => $_ } } keys %{$$ref} }
+                                when ('ARRAY') { @values = map { { val => $_                     } }      @{$$ref} }
                                 default        { next }
                         }
                         foreach (@values) {
-                                push @newout, new Data::DPath::Point( ref => \$_, parent => $point );
-                                push @newin,  new Data::DPath::Point( ref => \$_, parent => $point );
+                                my %attrs = $_->{key} ? ( attrs => { key => $_->{key} } ) : ();
+                                push @newout, new Data::DPath::Point( ref => \($_->{val}), parent => $point, %attrs );
+                                push @newin,  new Data::DPath::Point( ref => \($_->{val}), parent => $point         );
                         }
                 }
                 push @$out,  @newout;
@@ -74,12 +75,13 @@ class Data::DPath::Context is dirty {
                         @new_points =
                             grep {
                                     my $res;
-                                    my $p = $_;
+                                    local our $p = $_;
                                     local $_;
                                     if ( defined $p->ref ) {
                                             $_ = ${ $p->ref };
                                             # say STDERR "* $_";
-                                            no warnings 'uninitialized'; # having non-fitting values is the norm
+                                            # 'uninitialized' values are the norm
+                                            no warnings 'uninitialized';
                                             $res = eval $filter;
                                             say STDERR $@ if $@;
                                     } else {
@@ -146,8 +148,9 @@ class Data::DPath::Context is dirty {
                                                 next unless defined $point;
                                                 next unless reftype ${$point->ref} eq 'HASH';
                                                 # take point as hash, skip undefs
+                                                my $attrs = { key => $step->part };
                                                 my @step_points = map {
-                                                                       new Data::DPath::Point( ref => \$_, parent => $point )
+                                                                       new Data::DPath::Point( ref => \$_, parent => $point, attrs => $attrs )
                                                                       } ( ${$point->ref}->{$step->part} || () );
                                                 push @new_points, $self->_filter_points($step, @step_points);
                                         }
@@ -164,8 +167,10 @@ class Data::DPath::Context is dirty {
                                                         when ('HASH')
                                                         {
                                                                 @step_points = map {
-                                                                                    new Data::DPath::Point( ref => \$_, parent => $point )
-                                                                                   } values %$ref;
+                                                                                    my $v     = $ref->{$_};
+                                                                                    my $attrs = { key => $_ };
+                                                                                    new Data::DPath::Point( ref => \$v, parent => $point, attrs => $attrs )
+                                                                                   } keys %$ref;
                                                         }
                                                         when ('ARRAY')
                                                         {
@@ -190,10 +195,8 @@ class Data::DPath::Context is dirty {
                                         # '.'
                                         # no step (neither up nor down), just allow filtering
                                         foreach my $point (@current_points) {
-                                                $Data::DPath::DEBUG && say "    ,-----------------------------------";
                                                 my @step_points = ($point);
                                                 push @new_points, $self->_filter_points($step, @step_points);
-                                                $Data::DPath::DEBUG && say "    `-----------------------------------";
                                         }
                                 }
                                 when ('PARENT')
