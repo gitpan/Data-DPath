@@ -30,11 +30,11 @@ class Data::DPath is dirty {
                 groups  => { all   => [ 'dpath', 'dpathr' ] },
         };
 
-        method get_context ($class: Any $data, Str $path) {
+        method get_context ($class: $data, $path) {
                 new Data::DPath::Context(path => $path);
         }
 
-        method match ($class: Any $data, Str $path) {
+        method match ($class: $data, $path) {
                 Data::DPath::Path->new(path => $path)->match($data);
         }
 
@@ -44,7 +44,7 @@ class Data::DPath is dirty {
 
 # help the CPAN indexer
 package Data::DPath;
-our $VERSION = '0.17';
+our $VERSION = '0.20';
 
 1;
 
@@ -419,10 +419,19 @@ key names, just quote them:
 
 =back
 
-=head2 Difference between C</part[filter]> vs. C</part/.[filter]>
-vs. C</part/*[filter]>
+=head2 Difference between C</step[filter]> vs. C</step/.[filter]>
+vs. C</step/*[filter]>
 
-... TODO ...
+The filter applies to the matched points of the step to which it is
+applied, therefore C</part[filter]> is the normal form. The "no step"
+stays on the current step, therefore C</part/.[filter]> should be the
+same as C</part[filter]>.
+
+It's different for C</part/*[filter]>. That means, take all the sub
+elements ("*") after "step" and apply the filter to those. The most
+common use is to take "all" elements of an array and chose one element
+via index: C</step/*[4]/>. This takes the fifth element of the array
+inside "step".
 
 =head2 Filters
 

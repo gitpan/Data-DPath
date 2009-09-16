@@ -24,8 +24,6 @@ t/cyclic_structures.t
 t/data_dpath.t
 t/op.t
 t/path.t
-t/pod-coverage.t
-t/pod.t
 todo.org
 xt/alltest.t
 xt/best_of.t
