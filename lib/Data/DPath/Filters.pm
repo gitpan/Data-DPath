@@ -28,7 +28,8 @@ sub size
 sub key
 {
         no warnings 'uninitialized';
-        return $p->attrs->{key};
+        my $attrs = $p->attrs // {};
+        return $attrs->{key};
 }
 
 sub value
@@ -66,9 +67,6 @@ sub reftype {
 #    //AAA/*[ _push_idx ]/CCC[ condition ]/../../*[ idx == pop_idx + 1]/
 #
 # This would take a way down to a filtered CCC, then back again and take the next neighbor.
-
-# help the CPAN indexer
-package Data::DPath::Filters;
 
 1;
 

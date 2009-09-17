@@ -22,20 +22,13 @@ no_index:
     - t
     - xt
 requires:
-  B::Hooks::EndOfScope: 0.05
-  Class::MOP: 0.84
   List::MoreUtils: 0
-  Moose: 0.79
-  MooseX::Declare: 0.22
-  MooseX::Method::Signatures: 0.16
-  MooseX::Types::Structured: 0.14
-  Parse::Method::Signatures: 1.003005
+  Object::Tiny::RW: 0
   Scalar::Util: 0
   Sub::Exporter: 0
   aliased: 0
-  namespace::autoclean: 0.05
   parent: 0
   perl: 5.01
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.20
+version: 0.21

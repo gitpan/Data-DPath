@@ -1,8 +1,12 @@
-use MooseX::Declare;
+package Data::DPath;
 
 use 5.010;
+use strict;
+use warnings;
 
-class Data::DPath is dirty {
+our $VERSION = '0.21';
+
+use Object::Tiny::RW;
 
         our $DEBUG = 0;
 
@@ -23,28 +27,23 @@ class Data::DPath is dirty {
                 };
         }
 
-        clean;
-
         use Sub::Exporter -setup => {
                 exports => [ dpath => \&build_dpath, dpathr => \&build_dpathr ],
                 groups  => { all   => [ 'dpath', 'dpathr' ] },
         };
 
-        method get_context ($class: $data, $path) {
-                new Data::DPath::Context(path => $path);
-        }
+                sub get_context {
+                        my ($class, $data, $path) = @_;
 
-        method match ($class: $data, $path) {
+                        Data::DPath::Context->new(path => $path);
+                }
+
+        sub match {
+                my ($class, $data, $path) = @_;
                 Data::DPath::Path->new(path => $path)->match($data);
         }
 
         # ------------------------------------------------------------
-
-}
-
-# help the CPAN indexer
-package Data::DPath;
-our $VERSION = '0.20';
 
 1;
 
@@ -605,6 +604,19 @@ the first escaped double-quote is ok to be a single backslash.
 
 All strange, isn't it? At least it's (hopefully) consistent with
 something you know (Perl, Shell, etc.).
+
+=head1 INTERNAL METHODS
+
+To make pod coverage happy.
+
+=head2 build_dpath
+
+Prepares internal attributes for I<dpath>.
+
+=head2 build_dpathr
+
+Prepares internal attributes for I<dpathr>.
+
 
 =head1 AUTHOR
 

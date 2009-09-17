@@ -1,15 +1,10 @@
-use MooseX::Declare;
+package Data::DPath::Step;
 
 use 5.010;
+use strict;
+use warnings;
 
-class Data::DPath::Step {
-        has kind   => ( is  => "rw", default => sub { undef } );
-        has part   => ( is  => "rw", default => sub { undef } );
-        has filter => ( is  => "rw", default => sub { undef } );
-}
-
-# help the CPAN indexer
-package Data::DPath::Step;
+use Object::Tiny::RW 'kind', 'part', 'filter';
 
 1;
 
@@ -20,5 +15,19 @@ __END__
 Data::DPath::Step - Abstraction for a single Step through a Path.
 
 When a DPath is evaluated it executes these B<Step>s of a B<Path>.
+
+=head1 INTERNAL METHODS
+
+=head2 kind
+
+Attribute / accessor.
+
+=head2 part
+
+Attribute / accessor.
+
+=head2 filter
+
+Attribute / accessor.
 
 =cut
