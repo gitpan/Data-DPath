@@ -22,13 +22,14 @@ no_index:
     - t
     - xt
 requires:
+  Class::XSAccessor: 0
+  Class::XSAccessor::Array: 0
   List::MoreUtils: 0
-  Object::Tiny::RW: 0
   Scalar::Util: 0
   Sub::Exporter: 0
   aliased: 0
   parent: 0
-  perl: 5.01
+  perl: 5.008
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.21
+version: 0.30

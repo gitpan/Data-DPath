@@ -1,10 +1,16 @@
 package Data::DPath::Step;
 
-use 5.010;
 use strict;
 use warnings;
 
-use Object::Tiny::RW 'kind', 'part', 'filter';
+use Class::XSAccessor::Array
+    chained     => 1,
+    constructor => 'new',
+    accessors   => {
+                    kind   => 0,
+                    part   => 1,
+                    filter => 2,
+                   };
 
 1;
 
@@ -17,6 +23,10 @@ Data::DPath::Step - Abstraction for a single Step through a Path.
 When a DPath is evaluated it executes these B<Step>s of a B<Path>.
 
 =head1 INTERNAL METHODS
+
+=head2 new
+
+Constructor.
 
 =head2 kind
 

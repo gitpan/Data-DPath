@@ -1,10 +1,16 @@
 package Data::DPath::Point;
 
-use 5.010;
 use strict;
 use warnings;
 
-use Object::Tiny::RW 'parent', 'ref', 'attrs';
+use Class::XSAccessor::Array
+    chained     => 1,
+    constructor => 'new',
+    accessors   => {
+                    parent => 0,
+                    attrs  => 1,
+                    ref    => 2,
+                   };
 
 1;
 
@@ -21,6 +27,10 @@ remaining B<Point>s at the end just need to be dereferenced and form
 the result.
 
 =head1 INTERNAL METHODS
+
+=head2 new
+
+Constructor.
 
 =head2 parent
 

@@ -1,20 +1,33 @@
 package Data::DPath::Path;
 
-use 5.010;
 use strict;
 use warnings;
 
 use Data::Dumper;
-use Data::DPath::Step;
-use Data::DPath::Point;
-use Data::DPath::Context;
+use aliased 'Data::DPath::Step';
+use aliased 'Data::DPath::Point';
+use aliased 'Data::DPath::Context';
 use Text::Balanced 'extract_delimited', 'extract_codeblock';
 
-use Object::Tiny::RW 'path', '_steps', 'give_references';
+use Class::XSAccessor
+    chained     => 1,
+    accessors   => {
+                    path            => 'path',
+                    _steps          => '_steps',
+                    give_references => 'give_references',
+                   };
+
+use constant { ROOT     => 'ROOT',
+               ANYWHERE => 'ANYWHERE',
+               KEY      => 'KEY',
+               ANYSTEP  => 'ANYSTEP',
+               NOSTEP   => 'NOSTEP',
+               PARENT   => 'PARENT',
+           };
 
 sub new {
         my $class = shift;
-        my $self  = $class->SUPER::new( @_ );
+        my $self  = bless { @_ }, $class;
         $self->_build__steps;
         return $self;
 }
@@ -36,7 +49,7 @@ sub unquote {
 
 sub quoted { shift =~ m,^/["'],; }                                             # "
 
-use overload '~~' => \&op_match;
+eval 'use overload "~~" => \&op_match' if $] >= 5.010;
 
 sub op_match {
         my ($self, $data, $rhs) = @_;
@@ -52,73 +65,69 @@ sub _build__steps {
         my $extracted;
         my @steps;
 
-        push @steps, new Data::DPath::Step( part => '', kind => 'ROOT' );
+        push @steps, Step->new->part('')->kind(ROOT);
 
         while ($remaining_path) {
                 my $plain_part;
                 my $filter;
                 my $kind;
-                given ($remaining_path)
+                if ( quoted($remaining_path) ) {
+                        ($plain_part, $remaining_path) = extract_delimited($remaining_path, q/'"/, "/"); # '
+                        ($filter,     $remaining_path) = extract_codeblock($remaining_path, "[]");
+                        $plain_part                    = unescape unquote $plain_part;
+                        $kind                          = KEY; # quoted is always a key
+                }
+                else
                 {
-                        when ( \&quoted ) {
-                                ($plain_part, $remaining_path) = extract_delimited($remaining_path, q/'"/, "/"); # '
-                                ($filter,     $remaining_path) = extract_codeblock($remaining_path, "[]");
-                                $plain_part                    = unescape unquote $plain_part;
-                                $kind                          = 'KEY'; # quoted is always a key
-                        }
-                        default {
-                                my $filter_already_extracted = 0;
-                                ($extracted, $remaining_path) = extract_delimited($remaining_path,'/');
+                        my $filter_already_extracted = 0;
+                        ($extracted, $remaining_path) = extract_delimited($remaining_path,'/');
 
-                                if (not $extracted) {
-                                        ($extracted, $remaining_path) = ($remaining_path, undef); # END OF PATH
+                        if (not $extracted) {
+                                ($extracted, $remaining_path) = ($remaining_path, undef); # END OF PATH
+                        } else {
+
+                                # work around to recognize slashes in filter expressions and handle them:
+                                #
+                                # - 1) see if key unexpectedly contains opening "[" but no closing "]"
+                                # - 2) use the part before "["
+                                # - 3) unshift the rest to remaining
+                                # - 4) extract_codeblock() explicitely
+                                if ($extracted =~ /(.*)((?<!\\)\[.*)/ and $extracted !~ m|\]/\s*$|) {
+                                        $remaining_path =  $2 . $remaining_path;
+                                        ( $plain_part   =  $1 ) =~ s|^/||;
+                                        ($filter, $remaining_path) = extract_codeblock($remaining_path, "[]");
+                                        $filter_already_extracted = 1;
                                 } else {
-
-                                        # work around to recognize slashes in filter expressions and handle them:
-                                        #
-                                        # - 1) see if key unexpectedly contains opening "[" but no closing "]"
-                                        # - 2) use the part before "["
-                                        # - 3) unshift the rest to remaining
-                                        # - 4) extract_codeblock() explicitely
-                                        if ($extracted =~ /(.*)((?<!\\)\[.*)/ and $extracted !~ m|\]/\s*$|) {
-                                                $remaining_path =  $2 . $remaining_path;
-                                                ( $plain_part   =  $1 ) =~ s|^/||;
-                                                ($filter, $remaining_path) = extract_codeblock($remaining_path, "[]");
-                                                $filter_already_extracted = 1;
-                                        } else {
-                                                $remaining_path = (chop $extracted) . $remaining_path;
-                                        }
+                                        $remaining_path = (chop $extracted) . $remaining_path;
                                 }
-
-                                ($plain_part, $filter) = $extracted =~ m,^/              # leading /
-                                                                         (.*?)           # path part
-                                                                         (\[.*\])?$      # optional filter
-                                                                        ,xg unless $filter_already_extracted;
-                                $plain_part = unescape $plain_part;
                         }
+
+                        ($plain_part, $filter) = $extracted =~ m,^/              # leading /
+                                                                 (.*?)           # path part
+                                                                 (\[.*\])?$      # optional filter
+                                                                ,xg unless $filter_already_extracted;
+                        $plain_part = unescape $plain_part;
                 }
 
-                given ($plain_part) {
-                        when ('')   { $kind ||= 'ANYWHERE' }
-                        when ('*')  { $kind ||= 'ANYSTEP'  }
-                        when ('.')  { $kind ||= 'NOSTEP'   }
-                        when ('..') { $kind ||= 'PARENT'   }
-                        default     { $kind ||= 'KEY'      }
-                }
-                push @steps, new Data::DPath::Step( part   => $plain_part,
-                                                    kind   => $kind,
-                                                    filter => $filter );
+                if    ($plain_part eq '')   { $kind ||= ANYWHERE }
+                elsif ($plain_part eq '*')  { $kind ||= ANYSTEP  }
+                elsif ($plain_part eq '.')  { $kind ||= NOSTEP   }
+                elsif ($plain_part eq '..') { $kind ||= PARENT   }
+                else                        { $kind ||= KEY      }
+
+                push @steps, Step->new->part($plain_part)->kind($kind)->filter($filter);
         }
-        pop @steps if $steps[-1]->kind eq 'ANYWHERE'; # ignore final '/'
+        pop @steps if $steps[-1]->kind eq ANYWHERE; # ignore final '/'
         $self->_steps( \@steps );
 }
 
 sub match {
         my ($self, $data) = @_;
 
-        my $context = new Data::DPath::Context ( current_points  => [ new Data::DPath::Point ( ref => \$data )],
-                                                 give_references => $self->give_references,
-                                               );
+        my $context = Context
+            ->new
+                ->current_points([ Point->new->ref(\$data) ])
+                    ->give_references($self->give_references);
         return $context->match($self);
 }
 

@@ -1,4 +1,18 @@
-2009-09-17  Steffen Schwigon  <ss5@ss5-netbook>
+2009-09-22  Steffen Schwigon  <ss5@renormalist.net>
+
+	* v0.30
+
+	* yet more speed optimizations:
+	- switch from Object::Tiny::RW to Class::XSAccessor::Array
+	- try fast ref() before falling back to slower reftype()
+	- use constants
+
+	* backported code to Perl 5.8
+
+	* enable Perl 5.10 by default features if 5.10 available
+	- in particular the overloading of the smartmatch '~~' operator
+
+2009-09-17  Steffen Schwigon  <ss5@renormalist.net>
 
 	* v0.21
 
@@ -7,7 +21,7 @@
 	* dropped Moose and MX::Declare completely in favor of
 	Object::Tiny::RW and classical old school subs
 
-	* cleaned up dirty code by partially using 
+	* cleaned up dirty code by partially using
 	- no strict 'refs'
 	- no warnings 'uninitialized'
 
