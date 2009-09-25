@@ -27,9 +27,10 @@ requires:
   List::MoreUtils: 0
   Scalar::Util: 0
   Sub::Exporter: 0
+  Text::Balanced: 2.02
   aliased: 0
   parent: 0
   perl: 5.008
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.31
+version: 0.32
