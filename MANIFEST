@@ -20,13 +20,12 @@ META.yml
 README
 t/00-load.t
 t/basics_without_overload.t
+t/bigdata.dump
 t/boilerplate.t
 t/cyclic_structures.t
 t/data_dpath.t
-t/op.t
+t/optimization.t
 t/path.t
-t/pod-coverage.t
-t/pod.t
 todo.org
 xt/alltest.t
 xt/large_data.t
