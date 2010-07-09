@@ -17,12 +17,14 @@ use Class::XSAccessor
                     give_references => 'give_references',
                    };
 
-use constant { ROOT     => 'ROOT',
-               ANYWHERE => 'ANYWHERE',
-               KEY      => 'KEY',
-               ANYSTEP  => 'ANYSTEP',
-               NOSTEP   => 'NOSTEP',
-               PARENT   => 'PARENT',
+use constant { ROOT             => 'ROOT',
+               ANYWHERE         => 'ANYWHERE',
+               KEY              => 'KEY',
+               ANYSTEP          => 'ANYSTEP',
+               NOSTEP           => 'NOSTEP',
+               PARENT           => 'PARENT',
+               ANCESTOR         => 'ANCESTOR',
+               ANCESTOR_OR_SELF => 'ANCESTOR_OR_SELF',
            };
 
 sub new {
@@ -109,11 +111,13 @@ sub _build__steps {
                         $plain_part = unescape $plain_part;
                 }
 
-                if    ($plain_part eq '')   { $kind ||= ANYWHERE }
-                elsif ($plain_part eq '*')  { $kind ||= ANYSTEP  }
-                elsif ($plain_part eq '.')  { $kind ||= NOSTEP   }
-                elsif ($plain_part eq '..') { $kind ||= PARENT   }
-                else                        { $kind ||= KEY      }
+                if    ($plain_part eq '')                   { $kind ||= ANYWHERE }
+                elsif ($plain_part eq '*')                  { $kind ||= ANYSTEP  }
+                elsif ($plain_part eq '.')                  { $kind ||= NOSTEP   }
+                elsif ($plain_part eq '..')                 { $kind ||= PARENT   }
+                elsif ($plain_part eq '::ancestor')         { $kind ||= ANCESTOR   }
+                elsif ($plain_part eq '::ancestor-or-self') { $kind ||= ANCESTOR_OR_SELF   }
+                else                                        { $kind ||= KEY      }
 
                 push @steps, Step->new->part($plain_part)->kind($kind)->filter($filter);
         }

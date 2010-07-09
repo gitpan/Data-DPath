@@ -1,5 +1,7 @@
 ChangeLog
 inc/Module/Install.pm
+inc/Module/Install/AuthorRequires.pm
+inc/Module/Install/AuthorTests.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
@@ -21,13 +23,8 @@ README
 t/00-load.t
 t/basics_without_overload.t
 t/bigdata.dump
-t/boilerplate.t
 t/cyclic_structures.t
 t/data_dpath.t
 t/optimization.t
 t/path.t
 todo.org
-xt/alltest.t
-xt/large_data.t
-xt/pod-coverage.t
-xt/pod.t
