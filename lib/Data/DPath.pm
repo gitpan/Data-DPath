@@ -4,7 +4,7 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '0.36';
+our $VERSION = '0.37';
 
 our $DEBUG = 0;
 
@@ -13,31 +13,46 @@ use Data::DPath::Context;
 
 sub build_dpath {
         return sub ($) {
-                my ($path) = @_;
-                Data::DPath::Path->new(path => $path);
+                my ($path_str) = @_;
+                Data::DPath::Path->new(path => $path_str);
         };
 }
 
 sub build_dpathr {
         return sub ($) {
-                my ($path) = @_;
-                Data::DPath::Path->new(path => $path, give_references => 1);
+                my ($path_str) = @_;
+                Data::DPath::Path->new(path => $path_str, give_references => 1);
+        };
+}
+
+sub build_dpathi {
+        return sub ($$) {
+                my ($data, $path_str) = @_;
+
+                Data::DPath::Context
+                          ->new
+                            ->current_points([ Data::DPath::Point->new->ref(\$data) ])
+                              ->search(Data::DPath::Path->new(path => $path_str))
+                                ->_iter;
         };
 }
 
 use Sub::Exporter -setup => {
-                             exports => [ dpath => \&build_dpath, dpathr => \&build_dpathr ],
+                             exports => [ dpath => \&build_dpath,
+                                          dpathr => \&build_dpathr,
+                                          dpathi => \&build_dpathi,
+                                        ],
                              groups  => { all   => [ 'dpath', 'dpathr' ] },
                             };
 
 sub get_context {
-        my ($class, $data, $path) = @_;
-        Data::DPath::Context->new(path => $path);
+        my ($class, $data, $path_str) = @_;
+        Data::DPath::Context->new(path => $path_str);
 }
 
 sub match {
-        my ($class, $data, $path) = @_;
-        Data::DPath::Path->new(path => $path)->match($data);
+        my ($class, $data, $path_str) = @_;
+        Data::DPath::Path->new(path => $path_str)->match($data);
 }
 
 # ------------------------------------------------------------
@@ -95,7 +110,21 @@ You can get references into the C<$data> data structure by using C<dpathr>:
     $data ~~ dpathr '//AAA'
     # etc.
 
-See full details C<t/data_dpath.t>.
+You can request iterators that allow incremental searches
+based on current intermediate results:
+
+ my $benchmarks = dpathi $RESULTS, "//Benchmark";
+ while ($benchmarks->isnt_exhausted) {
+     my @keys;
+     my $benchmark = $benchmarks->value;
+     my $ancestors = $benchmark->isearch ("/::ancestor");
+     while ($ancestors->isnt_exhausted) {
+         my $ancestor = $ancestors->value;
+         my $key = $ancestor->first_point->{attrs}{key};
+     }
+ }
+
+See full details in C<t/data_dpath.t>.
 
 =head1 ABOUT
 
@@ -190,6 +219,17 @@ benchmarked.)
  element ".."         no                   YES
  for "PARENT"
  (//foo/..)
+ 
+ ---------------------------------------------------------------------
+ 
+ element "::ancestor" no                   YES
+ for "ANCESTOR"
+ (//foo/::ancestor)
+ 
+ ---------------------------------------------------------------------
+ 
+ element              no                   YES
+ "::ancestor-or-self"
  
  ---------------------------------------------------------------------
  
@@ -395,6 +435,15 @@ the step before.
 
 Matches the parent element relative to the current points.
 
+=item * C<::ancestor>
+
+Matches all ancestors (parent, grandparent, etc.) of the current node.
+
+=item * C<::ancestor-or-self>
+
+Matches all ancestors (parent, grandparent, etc.) of the current node
+and the current node itself.
+
 =item * C<.>
 
 A "no step". This keeps passively at the current points, but allows
@@ -417,6 +466,7 @@ key names, just quote them:
 
  /"*"/
  /"*"[ filter ]/
+ /"::ancestor"/
  /".."/
  /".."[ filter ]/
  /"."/
