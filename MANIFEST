@@ -10,6 +10,7 @@ inc/Module/Install/Metadata.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/Data/DPath.pm
+lib/Data/DPath/Attrs.pm
 lib/Data/DPath/Context.pm
 lib/Data/DPath/Filters.pm
 lib/Data/DPath/Path.pm
@@ -25,6 +26,7 @@ t/basics_without_overload.t
 t/bigdata.dump
 t/cyclic_structures.t
 t/data_dpath.t
+t/iterator.t
 t/optimization.t
 t/path.t
 todo.org

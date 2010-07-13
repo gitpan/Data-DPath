@@ -4,7 +4,7 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '0.37';
+our $VERSION = '0.40';
 
 our $DEBUG = 0;
 
@@ -26,29 +26,25 @@ sub build_dpathr {
 }
 
 sub build_dpathi {
-        return sub ($$) {
+        return sub ($) {
                 my ($data, $path_str) = @_;
 
                 Data::DPath::Context
                           ->new
                             ->current_points([ Data::DPath::Point->new->ref(\$data) ])
-                              ->search(Data::DPath::Path->new(path => $path_str))
-                                ->_iter;
+                              ->_search(Data::DPath::Path->new(path => "/"))
+                                ->_iter
+                                  ->value; # there is always exactly one root "/"
         };
 }
 
 use Sub::Exporter -setup => {
-                             exports => [ dpath => \&build_dpath,
+                             exports => [ dpath  => \&build_dpath,
                                           dpathr => \&build_dpathr,
                                           dpathi => \&build_dpathi,
                                         ],
                              groups  => { all   => [ 'dpath', 'dpathr' ] },
                             };
-
-sub get_context {
-        my ($class, $data, $path_str) = @_;
-        Data::DPath::Context->new(path => $path_str);
-}
 
 sub match {
         my ($class, $data, $path_str) = @_;
@@ -83,48 +79,50 @@ Data::DPath - DPath is not XPath!
  # Perl 5.10 style using overloaded smartmatch operator
  $resultlist = $data ~~ dpath '/AAA/*/CCC';         # [ ['XXX', 'YYY', 'ZZZ'], [ 'RR1', 'RR2', 'RR3' ] ]
 
-Not that the C<match()> function returns an array but the overloaded
+Note that the C<match()> function returns an array but the overloaded
 C<~~> operator returns an array reference (that's a limitation of
 overloading).
 
 Various other example paths from C<t/data_dpath.t> (not neccessarily
 fitting to above data structure):
 
-    $data ~~ dpath '/AAA/*/CCC'
-    $data ~~ dpath '/AAA/BBB/CCC/../..'    # parents  (..)
-    $data ~~ dpath '//AAA'                 # anywhere (//)
-    $data ~~ dpath '//AAA/*'               # anywhere + anystep
-    $data ~~ dpath '//AAA/*[size == 3]'    # filter by arrays/hash size
-    $data ~~ dpath '//AAA/*[size != 3]'    # filter by arrays/hash size
-    $data ~~ dpath '/"EE/E"/CCC'           # quote strange keys
-    $data ~~ dpath '/AAA/BBB/CCC/*[1]'     # filter by array index
-    $data ~~ dpath '/AAA/BBB/CCC/*[ idx == 1 ]' # same, filter by array index
-    $data ~~ dpath '//AAA/BBB/*[key eq "CCC"]'  # filter by exact keys
-    $data ~~ dpath '//AAA/*[ key =~ /CC/ ]'     # filter by regex matching keys
-    $data ~~ dpath '//CCC/*[ value eq "RR2" ]'  # filter by values of hashes
+ $data ~~ dpath '/AAA/*/CCC'
+ $data ~~ dpath '/AAA/BBB/CCC/../..'    # parents  (..)
+ $data ~~ dpath '//AAA'                 # anywhere (//)
+ $data ~~ dpath '//AAA/*'               # anywhere + anystep
+ $data ~~ dpath '//AAA/*[size == 3]'    # filter by arrays/hash size
+ $data ~~ dpath '//AAA/*[size != 3]'    # filter by arrays/hash size
+ $data ~~ dpath '/"EE/E"/CCC'           # quote strange keys
+ $data ~~ dpath '/AAA/BBB/CCC/*[1]'     # filter by array index
+ $data ~~ dpath '/AAA/BBB/CCC/*[ idx == 1 ]' # same, filter by array index
+ $data ~~ dpath '//AAA/BBB/*[key eq "CCC"]'  # filter by exact keys
+ $data ~~ dpath '//AAA/*[ key =~ /CC/ ]'     # filter by regex matching keys
+ $data ~~ dpath '//CCC/*[ value eq "RR2" ]'  # filter by values of hashes
+
+See full details in C<t/data_dpath.t>.
 
 You can get references into the C<$data> data structure by using C<dpathr>:
 
-    $data ~~ dpathr '/AAA/*/CCC'
-    $data ~~ dpathr '/AAA/BBB/CCC/../..'
-    $data ~~ dpathr '//AAA'
-    # etc.
+ $data ~~ dpathr '//AAA/BBB/*'
+ # etc.
 
-You can request iterators that allow incremental searches
-based on current intermediate results:
+You can request iterators to do incremental searches using C<dpathi>:
 
- my $benchmarks = dpathi $RESULTS, "//Benchmark";
- while ($benchmarks->isnt_exhausted) {
-     my @keys;
-     my $benchmark = $benchmarks->value;
-     my $ancestors = $benchmark->isearch ("/::ancestor");
-     while ($ancestors->isnt_exhausted) {
-         my $ancestor = $ancestors->value;
-         my $key = $ancestor->first_point->{attrs}{key};
+ my $benchmarks_iter = dpathi($data)->isearch("//Benchmark");
+ while ($benchmarks_iter->isnt_exhausted)
+ {
+     my $benchmark = $benchmarks_iter->value;
+     my $ancestors_iter = $benchmark->isearch ("/::ancestor");
+     while ($ancestors_iter->isnt_exhausted)
+     {
+         my $ancestor = $ancestors_iter->value;
+         print Dumper( $ancestor->deref );
      }
  }
 
-See full details in C<t/data_dpath.t>.
+This finds all elements anywhere behind a key "Benchmark" and for each
+one found print all its ancestors, respectively. See also chapter
+L<Iterator style|/"Iterator style">.
 
 =head1 ABOUT
 
@@ -294,7 +292,7 @@ benchmarked.)
  
  ---------------------------------------------------------------------
  
- Perl Versions        5.6 - 5.11           5.8 .. 5.11
+ Perl Versions        5.6+                 5.8+
  
  ---------------------------------------------------------------------
  
@@ -313,7 +311,7 @@ not suffer from surrounding meta problems: it has no dependencies, is
 fast and works on practically every Perl version.
 
 Whereas L<Data::DPath|Data::DPath> provides more XPath-alike features,
-but isn't quite as fast and has a few more dependencies.
+but isn't quite as fast and has more dependencies.
 
 =head1 Security warning
 
@@ -326,7 +324,7 @@ version. Tell me what you think or when you need it.
 
 =head1 FUNCTIONS
 
-=head2 dpath( $path )
+=head2 dpath( $path_str )
 
 Meant as the front end function for everyday use of Data::DPath. It
 takes a path string and returns a C<Data::DPath::Path> object on which
@@ -338,21 +336,26 @@ can omit the parens in many cases.
 
 See SYNOPSIS.
 
-=head2 dpathr( $dpath )
+=head2 dpathr( $path_str )
 
 Same as C<dpath> but toggles that results are references to the
 matched points in the data structure.
 
-=head1 METHODS
+=head2 dpathi( $data )
+
+This is a different, iterator style, approach.
+
+You provide the data structure on which to work and get back a current
+context containing the root element (as if you had searched for the
+path C</>), and now you can do incremental searches using C<isearch>.
+
+See chapter L<Iterator style|/"Iterator style"> below for details.
+
+=head1 API METHODS
 
 =head2 match( $data, $path )
 
 Returns an array of all values in C<$data> that match the C<$path>.
-
-=head2 get_context( $path )
-
-Returns a C<Data::DPath::Context> object that matches the path and can
-be used to incrementally dig into it.
 
 =head1 OPERATOR
 
@@ -604,7 +607,7 @@ defined order if resulting from anything else than arrays.
 
 =item size
 
-Returns the size of the current element. If it is a arrayref it
+Returns the size of the current element. If it is an arrayref it
 returns number of elements, if it's a hashref it returns number of
 keys, if it's a scalar it returns 1, everything else returns -1.
 
@@ -615,8 +618,8 @@ returns undef.
 
 =item value
 
-Returns the value of the current element. If it is a hashref return
-the value. If a scalar return the scalar. Else return undef.
+Returns the value of the current element. If it is a hashref, return
+the value. If a scalar, return the scalar. Else return undef.
 
 =back
 
@@ -702,6 +705,79 @@ the first escaped double-quote is ok to be a single backslash.
 All strange, isn't it? At least it's (hopefully) consistent with
 something you know (Perl, Shell, etc.).
 
+=head1 Iterator style
+
+The I<iterator style> approach is an alternative to the already
+describe I<get-all-results-at-once> approach. With it you iterate over
+the results one by one and even allow relative sub searches on
+each. The iterators use the L<Iterator|Iterator> API.
+
+Please note, that the iterators do B<not> save memory, they are just
+holding the context to go step-by-step and to start subsequent
+searches. Each iterator needs to evaluate its whole result set
+first. So in fact with nested iterators your memory might even go up.
+
+=head2 Basic usage by example
+
+Initialize a DPath iterator on a data structure using:
+
+ my $root = dpathi($data);
+
+Create a new iterator context, with the path relative to current
+root context:
+
+ my $affe_iter = $root->isearch("//anywhere/affe");
+
+Iterate over affe results:
+
+ while ($affe_iter->isnt_exhausted)
+ {
+     my $affe_point = $affe_iter->value;     # next "affe" point
+     my $affe       = $affe_point->deref;    # the actual "affe"
+ }
+
+=head2 Nested iterators example
+
+This example is taken from the
+L<Benchmark::Perl::Formance|Benchmark::Perl::Formance> suite, where
+the several plugins are allowed to provide their results anywhere
+at any level down in the result hash.
+
+When the results are printed we look for all keys C<Benchmark> and
+regenerate the path to each so we can name it accordingly, e.g.,
+C<plugin.name.subname>.
+
+For this we need an iterator to get the single C<Benchmark> points one
+by one and evaluate the corresponding ancestors to fetch their hash
+keys. Here is the code:
+
+ my $benchmarks_iter = dpathi($results)->isearch("//Benchmark");
+ while ($benchmarks_iter->isnt_exhausted)
+ {
+     my $benchmark = $benchmarks_iter->value;
+     my $ancestors_iter = $benchmark->isearch ("/::ancestor");
+     while ($ancestors_iter->isnt_exhausted)
+     {
+         my $ancestor = $ancestors_iter->value;
+         print Dumper( $ancestor->deref );               #(1)
+         print $ancestor->first_point->{attrs}{key};     #(2)
+     }
+ }
+
+Note that we have two iterators, the first one (C<$benchmarks_iter>)
+over the actual benchmark results and the second one
+(C<$ancestors_iter>) over the ancestors relative to one benchmark.
+
+In line B<#(1)> you can see that once you have the searched point,
+here the ancestors, you get the actual data using 
+C<< $iterator->value->deref >>. 
+
+The line B<#(2)> is utilizing the internal data structure to find out
+about the actual hash key under which the point is located. (There is
+also an official API to that: C<< $ancestor->first_point->attrs->key >>, 
+but there it's neccessary to check for undefined values before
+calling the methods F<attrs> and F<key>, so I went the easy way).
+
 =head1 INTERNAL METHODS
 
 To make pod coverage happy.
@@ -714,6 +790,9 @@ Prepares internal attributes for I<dpath>.
 
 Prepares internal attributes for I<dpathr>.
 
+=head2 build_dpathi
+
+Prepares internal attributes for I<dpathi>.
 
 =head1 AUTHOR
 

@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 162;
+use Test::More;
 use Test::Deep;
 use Data::DPath 'dpath', 'dpathr';
 use Data::Dumper;
@@ -346,38 +346,6 @@ $resultlist = [dpath('//AAA/*/CCC[1]')->match($data)];
 cmp_bag($resultlist, [ ], "ANYWHERE + KEY + FILTER int 1" );
 
 # ==================================================
-
-TODO: {
-
-        local $TODO = 'spec only: context';
-
-        # --------------------
-
-        # context objects for incremental searches
-        $context = Data::DPath->get_context($data, '//AAA/*/CCC');
-        @resultlist = $context->all();
-        # ( ['XXX', 'YYY', 'ZZZ'], 'affe' )
-        cmp_bag(\@resultlist, [
-                               ['XXX', 'YYY', 'ZZZ'],
-                               ['RR1', 'RR2', 'RR3'],
-                               'affe'
-                              ], "context for incremental searches" );
-
-        # is '*/..[0]' the same as ''?
-        $context = Data::DPath->get_context($data, '//AAA/*/..[0]/CCC'); # !!??
-        @resultlist = $context->all();
-        # ( ['XXX', 'YYY', 'ZZZ'], 'affe' )
-        cmp_bag(\@resultlist, [ ['XXX', 'YYY', 'ZZZ'], ['RR1', 'RR2', 'RR3'], 'affe' ] );
-
-        # dpath inside context, same as: Data::DPath->match($data, '//AAA/*/CCC/*[2]')
-        @resultlist = $context->search(dpath('/*[2]'))->all;
-        cmp_bag(\@resultlist, [ 'ZZZ' ], "incremental + FILTER int" );
-
-}
-
-# ----------------------------------------
-
-
 
 my $data2 = [
              'UUU',
@@ -898,3 +866,5 @@ TODO: {
         # print STDERR "resultlist = ", Dumper($resultlist);
         cmp_bag($resultlist, [ [ 11, 22, 33 ] ], "ANYWHERE + ANYSTEP + FILTER eval value + 2xPARENT + FILTER int + bless" );
 }
+
+done_testing();

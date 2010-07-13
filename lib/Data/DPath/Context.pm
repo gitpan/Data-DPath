@@ -5,6 +5,7 @@ use warnings;
 
 use Data::Dumper;
 use aliased 'Data::DPath::Point';
+use aliased 'Data::DPath::Attrs';
 use List::MoreUtils 'uniq';
 use Scalar::Util 'reftype';
 use Data::DPath::Filters;
@@ -81,7 +82,7 @@ sub _any
                         my $key = $_->{key};
                         my $val = $_->{val};
                         my $newpoint = Point->new->ref(\$val)->parent($point);
-                        $newpoint->attrs({ key => $key }) if $key;
+                        $newpoint->attrs( Attrs->new(key => $key)) if $key;
                         push @newout, $newpoint;
                         push @newin,  $newpoint;
                 }
@@ -90,7 +91,7 @@ sub _any
         return _any ($out, \@newin, $lookahead_key);
 }
 
-sub all {
+sub _all {
         my ($self) = @_;
 
         no strict 'refs';
@@ -218,7 +219,7 @@ sub _select_key {
                                                 reftype($$pref) eq HASH
                                                ));
                                 # take point as hash, skip undefs
-                my $attrs = { key => $step->part };
+                my $attrs = Attrs->new(key => $step->part);
                 my $step_points = [ map { Point
                                             ->new
                                               ->ref(\$_)
@@ -244,7 +245,7 @@ sub _select_anystep {
                 if (ref($ref) eq HASH or reftype($ref) eq HASH) {
                         $step_points = [ map {
                                 my $v     = $ref->{$_};
-                                my $attrs = { key => $_ };
+                                my $attrs = Attrs->new(key => $_);
                                 Point->new->ref(\$v)->parent($point)->attrs($attrs)
                         } keys %$ref ];
                 } elsif (ref($ref) eq ARRAY or reftype($ref) eq ARRAY) {
@@ -315,6 +316,16 @@ sub _select_ancestor_or_self {
         }
 }
 
+sub ref {
+        my ($self) = @_;
+        $self->first_point->{ref};
+}
+
+sub deref {
+        my ($self) = @_;
+        ${$self->ref};
+}
+
 sub first_point {
         my ($self) = @_;
         $self->current_points->[0];
@@ -335,18 +346,18 @@ sub _iter {
 sub isearch
 {
         my ($self, $path_str) = @_;
-        $self->search(Data::DPath::Path->new(path => $path_str))->_iter;
+        $self->_search(Data::DPath::Path->new(path => $path_str))->_iter;
 }
 
-sub search
+sub _search
 {
-        my ($self, $path) = @_;
+        my ($self, $dpath) = @_;
 
         no strict 'refs';
         no warnings 'uninitialized';
 
         my $current_points = $self->current_points;
-        my $steps = $path->_steps;
+        my $steps = $dpath->_steps;
         for (my $i = 0; $i < @$steps; $i++) {
                 my $step = $steps->[$i];
                 my $lookahead = $steps->[$i+1];
@@ -391,9 +402,9 @@ sub search
 }
 
 sub match {
-        my ($self, $path) = @_;
+        my ($self, $dpath) = @_;
 
-        $self->search($path)->all;
+        $self->_search($dpath)->_all;
 }
 
 1;
@@ -421,22 +432,54 @@ matched points in the data structure.
 
 =back
 
-=head2 all
+=head2 match( $dpath )
+
+Return all data that match the given DPath.
+
+=head2 isearch( $path_str )
+
+Searches a path relative to current context and returns an iterator.
+See L<Iterator style|Data::DPath/"Iterator style"> for usage.
+
+=head2 ref()
+
+It returns the reference to the actual data from the current context's
+first element. This mostly makes sense on contexts returned by
+iterators as there is only one point there. 
+
+(Having the reference theoretically allows you to even change the data
+on this point. It's not yet clear what impact this has to currently
+active iterators, which B<should> still return the original data but
+that's not yet tested. So don't rely on that behaviour.)
+
+=head2 deref()
+
+This is one dereference step on top of F<ref()>. It gives you the
+actual data found. Most of the time you want this.
+
+=head2 first_point
+
+On a current context consisting on a set of points it returns the
+first point. This makes most sense with Iterator style API when the
+current iterator contains exactly one point.
+
+=head2 all_points
+
+On a current context consisting on a set of points it returns all
+those. This method is a functional complement to F<first_point>.
+
+=head1 UTILITY SUBS/METHODS
+
+=head2 _all
 
 Returns all values covered by current context.
 
 If C<give_references> is set to true value then results are references
 to the matched points in the data structure.
 
-=head2 search( $path )
+=head2 _search( $dpath )
 
-Return new context with path relative to current context.
-
-=head2 match( $path )
-
-Same as C<< search($path)->all() >>;
-
-=head1 UTILITY SUBS/METHODS
+Return new context for a DPath relative to current context.
 
 =head2 _filter_points
 
