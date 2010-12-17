@@ -4,9 +4,10 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '0.40';
+our $VERSION = '0.41';
 
 our $DEBUG = 0;
+our $USE_SAFE = 1;
 
 use Data::DPath::Path;
 use Data::DPath::Context;
@@ -319,8 +320,14 @@ B<Watch out!> This module C<eval>s parts of provided dpaths (in
 particular: the filter expressions). Don't use it if you don't trust
 your paths.
 
-Maybe I will provide a switch-off-complex-filtering option in a later
-version. Tell me what you think or when you need it.
+Since v0.41 the filter expressions are secured using L<Safe.pm|Safe>
+to only allow basic Perl core ops. To unrestrict this to pre-v0.41 raw
+C<eval> behaviour you can set C<$Data::DPath::USE_SAFE> to False:
+
+  local $Data::DPath::USE_SAFE;
+  # dpath '//CCC//*[ unsecure_perl_expression ]'
+
+Read L<Safe.pm|Safe> to understand how secure this is.
 
 =head1 FUNCTIONS
 
@@ -405,7 +412,7 @@ down the matching set of results.
 Additional functions provided inside the filters are called, well,
 B<filter functions>.
 
-Each step has a set of C<point>s relative to the set of points before
+Each step has a set of B<point>s relative to the set of points before
 this step, all starting at the root of the data structure.
 
 =head2 Special elements
@@ -849,7 +856,7 @@ The public repository is hosted on github:
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2008,2009 Steffen Schwigon.
+Copyright 2008-2010 Steffen Schwigon.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

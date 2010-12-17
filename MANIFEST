@@ -24,9 +24,12 @@ README
 t/00-load.t
 t/basics_without_overload.t
 t/bigdata.dump
+t/bigdata2.dump
 t/cyclic_structures.t
 t/data_dpath.t
 t/iterator.t
 t/optimization.t
+t/parallel.t
 t/path.t
+t/zeros.t
 todo.org

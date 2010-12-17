@@ -10,6 +10,29 @@ use List::MoreUtils 'uniq';
 use Scalar::Util 'reftype';
 use Data::DPath::Filters;
 use Iterator::Util;
+use List::Util 'min';
+use POSIX;
+use Safe;
+
+# run filter expressions in own Safe.pm compartment
+our $COMPARTMENT;
+BEGIN {
+        package Data::DPath::Filters;
+        $COMPARTMENT = Safe->new;
+        $COMPARTMENT->permit(qw":base_core");
+        # map DPath filter functions into new namespace
+        $COMPARTMENT->share(qw(affe
+                               idx
+                               size
+                               key
+                               value
+                               isa
+                               reftype
+                               is_reftype
+                             ));
+}
+
+our $THREADCOUNT = _num_cpus();
 
 # print "use $]\n" if $] >= 5.010; # allow new-school Perl inside filter expressions
 # eval "use $]" if $] >= 5.010; # allow new-school Perl inside filter expressions
@@ -34,6 +57,38 @@ use constant { HASH             => 'HASH',
                ANCESTOR         => 'ANCESTOR',
                ANCESTOR_OR_SELF => 'ANCESTOR_OR_SELF',
            };
+
+# parallelization utils
+sub _num_cpus
+{
+    my $cpus = 0;
+    if (open my $fh, '<', '/proc/cpuinfo') {
+        while (<$fh>) {
+            $cpus++ if /^processor[\s]+:/
+        }
+        close $fh;
+    }
+    return $cpus || 1;
+}
+
+sub _splice_threads {
+    my ($cargo) = @_;
+
+    my $nr_cargo    = @$cargo;
+
+    return [[]] unless $nr_cargo;
+
+    my $threadcount = $THREADCOUNT || 1;
+    my $blocksize   = ceil ($nr_cargo / $threadcount);
+
+    my @result = map {
+        my $first =  $_ * $blocksize;
+        my $last  = min(($_+1) * $blocksize - 1, $nr_cargo-1);
+        ($first <= $last) ? [ @$cargo[$first .. $last]] : ();
+    } 0 .. $threadcount-1;
+
+    return \@result;
+}
 
 # only finds "inner" values; if you need the outer start value
 # then just wrap it into one more level of array brackets.
@@ -65,8 +120,7 @@ sub _any
                                     or ($ref = ref($_->{val}))         eq HASH
                                     or $ref                            eq ARRAY
                                     or ($reftype = reftype($_->{val})) eq HASH
-                                    # not yet sure whether I also need this:
-                                    #or $reftype                        eq ARRAY
+                                    or $reftype                        eq ARRAY
                             } map { { val => $$ref->{$_}, key => $_ } }
                                 keys %{$$ref};
                 }
@@ -133,8 +187,14 @@ sub _filter_points_eval
                                        if ( defined $pref ) {
                                                $_ = $$pref;
                                                # 'uninitialized' values are the norm
-                                               no warnings 'uninitialized';
-                                               $res = eval $filter;
+                                               # but "no warnings 'uninitialized'" does
+                                               # not work in this restrictive Safe.pm config, so
+                                               # we deactivate warnings completely by localizing $^W
+                                               if ($Data::DPath::USE_SAFE) {
+                                                       $res = $COMPARTMENT->reval('local $^W;'.$filter);
+                                               } else {
+                                                       $res = eval($filter);
+                                               }
                                                print STDERR ($@, "\n") if $@;
                                        } else {
                                                $res = 0;
@@ -220,12 +280,10 @@ sub _select_key {
                                                ));
                                 # take point as hash, skip undefs
                 my $attrs = Attrs->new(key => $step->part);
-                my $step_points = [ map { Point
-                                            ->new
-                                              ->ref(\$_)
-                                                ->parent($point)
-                                                  ->attrs($attrs)
-                                          } ( $$pref->{$step->part} || () ) ];
+                my $step_points = [];
+                if (exists $$pref->{$step->part}) {
+                        $step_points = [ Point->new->ref(\($$pref->{$step->part}))->parent($point)->attrs($attrs) ];
+                }
                 push @$new_points, @{$self->_filter_points($step, $step_points)};
         }
 }
@@ -513,7 +571,7 @@ Steffen Schwigon, C<< <schwigon at cpan.org> >>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2008,2009 Steffen Schwigon.
+Copyright 2008-2010 Steffen Schwigon.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

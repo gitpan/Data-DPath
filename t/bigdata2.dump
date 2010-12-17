@@ -13,7 +13,7 @@ $VAR1 = {
                                                                                    'exit' => 0,
                                                                                    'start_time' => '1269439582.7107',
                                                                                    'skip_all' => undef,
-                                                                                   'lines' => [
+                                                                                   'lines' => bless ([
                                                                                                 {
                                                                                                   'is_comment' => 0,
                                                                                                   'has_skip' => 0,
@@ -74,20 +74,20 @@ $VAR1 = {
                                                                                                                      'is_yaml' => 1,
                                                                                                                      'is_plan' => 0,
                                                                                                                      'data' => {
-                                                                                                                                 'glibc' => 'glibc, 2.4',
-                                                                                                                                 'count' => '150',
-                                                                                                                                 'language_series' => 'arch_barcelona',
-                                                                                                                                 'language_binary' => '/opt/artemis/slbench/python/arch_barcelona/2.7/bin/python',
-                                                                                                                                 'standard_deviation' => '0.0164822946672',
-                                                                                                                                 'hostname' => 'foo.dept.lhm.com',
-                                                                                                                                 'operating_system' => 'Linux',
-                                                                                                                                 'release' => '2.6.30.10-105.2.23.fc11.x86_64',
-                                                                                                                                 'median' => '0.58355140686',
-                                                                                                                                 'mean' => '0.592707689603',
-                                                                                                                                 'architecture' => '64bit',
-                                                                                                                                 'number_CPUs' => '16',
-                                                                                                                                 'benchmark' => 'call_simple',
-                                                                                                                                 'machine' => 'x86_64'
+                                                                                                                                 'glibc' => 'xglibc, 2.4',
+                                                                                                                                 'count' => 'x150',
+                                                                                                                                 'language_series' => 'xarch_barcelona',
+                                                                                                                                 'language_binary' => 'x/opt/artemis/slbench/python/arch_barcelona/2.7/bin/python',
+                                                                                                                                 'standard_deviation' => 'x0.0164822946672',
+                                                                                                                                 'hostname' => 'xfoo.dept.lhm.com',
+                                                                                                                                 'operating_system' => 'xLinux',
+                                                                                                                                 'release' => 'x2.6.30.10-105.2.23.fc11.x86_64',
+                                                                                                                                 'median' => 'x0.58355140686',
+                                                                                                                                 'mean' => 'x0.592707689603',
+                                                                                                                                 'architecture' => 'x64bit',
+                                                                                                                                 'number_CPUs' => 'x16',
+                                                                                                                                 'benchmark' => 'xcall_simple',
+                                                                                                                                 'machine' => 'xx86_64'
                                                                                                                                },
                                                                                                                      'is_actual_ok' => 0,
                                                                                                                      'is_unknown' => 0,
@@ -106,7 +106,7 @@ $VAR1 = {
                                                                                                   'type' => 'test',
                                                                                                   'is_version' => 0
                                                                                                 }
-                                                                                              ],
+                                                                                              ], "Foo::Bar::Lines"),
                                                                                    'is_good_plan' => 1,
                                                                                    'has_problems' => 0,
                                                                                    'end_time' => '1269439582.71287',
