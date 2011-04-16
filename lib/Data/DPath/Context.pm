@@ -61,13 +61,15 @@ use constant { HASH             => 'HASH',
 # parallelization utils
 sub _num_cpus
 {
+    open my $fh, '<', '/proc/cpuinfo'
+        or return 1;
+
     my $cpus = 0;
-    if (open my $fh, '<', '/proc/cpuinfo') {
-        while (<$fh>) {
-            $cpus++ if /^processor[\s]+:/
-        }
-        close $fh;
+    while (defined(my $line = <$fh>)) {
+        $cpus++ if $line =~ /^processor[\s]+:/
     }
+    close $fh;
+
     return $cpus || 1;
 }
 
@@ -103,29 +105,33 @@ sub _any
 
         my @newin;
         my @newout;
-        my $ref;
-        my $reftype;
+        my $tmp_ref;
+        my $tmp_deref;
+        my $tmp_reftype;
 
         foreach my $point (@$in) {
                 my @values;
+                next unless defined $point;
                 my $ref = $point->ref;
 
                 # speed optimization: first try faster ref, then reftype
                 if (ref($$ref) eq HASH or reftype($$ref) eq HASH) {
                         @values =
+                            map { { val_ref => \($$ref->{$_}), key => $_ } }
                             grep {
                                     # speed optimization: only consider a key if lookahead looks promising
                                     not defined $lookahead_key
-                                    or $_->{key} eq $lookahead_key
-                                    or ($ref = ref($_->{val}))         eq HASH
-                                    or $ref                            eq ARRAY
-                                    or ($reftype = reftype($_->{val})) eq HASH
-                                    or $reftype                        eq ARRAY
-                            } map { { val => $$ref->{$_}, key => $_ } }
+                                    or $_ eq $lookahead_key
+                                    or ($tmp_ref = ref($tmp_deref =$$ref->{$_}))         eq HASH
+                                    or $tmp_ref                                   eq ARRAY
+                                    or ($tmp_reftype = reftype($tmp_deref)) eq HASH
+                                    or $tmp_reftype                               eq ARRAY
+                                    # or HASH_or_ARRAY(\($$ref->{$_}))
+                            }
                                 keys %{$$ref};
                 }
                 elsif (ref($$ref) eq ARRAY or reftype($$ref) eq ARRAY) {
-                        @values = map { { val => $_ } } @{$$ref}
+                        @values = map { { val_ref => \$_ } } @{$$ref}
                 }
                 else {
                         next
@@ -134,8 +140,8 @@ sub _any
                 foreach (@values)
                 {
                         my $key = $_->{key};
-                        my $val = $_->{val};
-                        my $newpoint = Point->new->ref(\$val)->parent($point);
+                        my $val_ref = $_->{val_ref};
+                        my $newpoint = Point->new->ref($val_ref)->parent($point);
                         $newpoint->attrs( Attrs->new(key => $key)) if $key;
                         push @newout, $newpoint;
                         push @newin,  $newpoint;
@@ -302,9 +308,9 @@ sub _select_anystep {
                 # speed optimization: first try faster ref, then reftype
                 if (ref($ref) eq HASH or reftype($ref) eq HASH) {
                         $step_points = [ map {
-                                my $v     = $ref->{$_};
+                                my $v_ref = \($ref->{$_});
                                 my $attrs = Attrs->new(key => $_);
-                                Point->new->ref(\$v)->parent($point)->attrs($attrs)
+                                Point->new->ref($v_ref)->parent($point)->attrs($attrs)
                         } keys %$ref ];
                 } elsif (ref($ref) eq ARRAY or reftype($ref) eq ARRAY) {
                         $step_points = [ map {
@@ -313,9 +319,9 @@ sub _select_anystep {
                 } else {
                         if (ref($pref) eq SCALAR or reftype($pref) eq SCALAR) {
                                 # TODO: without map, it's just one value
-                                $step_points = [ map {
-                                        Point->new->ref(\$_)->parent($point)
-                                } $ref ];
+                                $step_points = [ #map {
+                                        Point->new->ref($pref)->parent($point) # XXX? why $_? What happens to $pref?
+                                ]; # } $ref ];
                         }
                 }
                 push @$new_points, @{ $self->_filter_points($step, $step_points) };
@@ -339,6 +345,7 @@ sub _select_parent {
         my ($self, $step, $current_points, $new_points) = @_;
 
         foreach my $point (@{$current_points}) {
+                next unless defined $point;
                 my $step_points = [$point->parent];
                 push @$new_points, @{ $self->_filter_points($step, $step_points) };
         }
@@ -571,7 +578,7 @@ Steffen Schwigon, C<< <schwigon at cpan.org> >>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2008-2010 Steffen Schwigon.
+Copyright 2008-2011 Steffen Schwigon.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

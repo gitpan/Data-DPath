@@ -31,5 +31,6 @@ t/iterator.t
 t/optimization.t
 t/parallel.t
 t/path.t
+t/references.t
 t/zeros.t
 todo.org
