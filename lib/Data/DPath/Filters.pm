@@ -47,16 +47,7 @@ sub key()
 sub value()
 {
         no warnings 'uninitialized';
-
-        # optimization: first try faster ref, then reftype
-        # ref
-        return (values %$_)[0] if (defined $_ and ref  $_ eq HASH);
-        return $_              if (defined $_ and ref \$_ eq SCALAR);
-        # reftype
-        return (values %$_)[0] if (defined $_ and Scalar::Util::reftype  $_ eq HASH);
-        return $_              if (defined $_ and Scalar::Util::reftype \$_ eq SCALAR);
-        # else
-        return undef;
+        return $_;
 }
 
 sub isa($) {
@@ -118,12 +109,11 @@ the associated point is already after that key.
 
 =head2 value
 
-Returns the value of the current element. If it is a hashref return
-the value. If a scalar return the scalar. Else return undef.
+Returns the value of the current element.
 
 =head2 isa
 
-Frontend to UNIVERSAL::isa. True if the current elemt is_a given
+Frontend to UNIVERSAL::isa. True if the current element is_a given
 class.
 
 =head2 reftype
