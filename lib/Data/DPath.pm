@@ -3,7 +3,7 @@ BEGIN {
   $Data::DPath::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::VERSION = '0.45';
+  $Data::DPath::VERSION = '0.46';
 }
 # ABSTRACT: DPath is not XPath!
 
@@ -822,23 +822,23 @@ in data structures.
 
 =item Data::Path
 
-http://metacpan.org/release/Data-Path
+L<http://metacpan.org/release/Data-Path>
 
 =item XML::XPathEngine
 
-http://metacpan.org/release/XML-XPathEngine
+L<http://metacpan.org/release/XML-XPathEngine>
 
 =item Tree::XPathEngine
 
-http://metacpan.org/release/Tree-XPathEngine
+L<http://metacpan.org/release/Tree-XPathEngine>
 
 =item Class::XPath
 
-http://metacpan.org/release/Class-XPath
+L<http://metacpan.org/release/Class-XPath>
 
 =item Hash::Path
 
-http://metacpan.org/release/Hash-Path
+L<http://metacpan.org/release/Hash-Path>
 
 =back
 

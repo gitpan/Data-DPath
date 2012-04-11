@@ -3,7 +3,7 @@ BEGIN {
   $Data::DPath::Attrs::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::Attrs::VERSION = '0.45';
+  $Data::DPath::Attrs::VERSION = '0.46';
 }
 # ABSTRACT: Abstraction for internal attributes attached to a point
 

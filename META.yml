@@ -36,7 +36,7 @@ resources:
   bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=Data-DPath
   homepage: http://metacpan.org/release/Data-DPath
   repository: git://github.com/renormalist/data-dpath.git
-version: 0.45
+version: 0.46
 x_Dist_Zilla:
   plugins:
     -
@@ -139,6 +139,10 @@ x_Dist_Zilla:
       class: Dist::Zilla::Plugin::AutoPrereqs
       name: '@SCHWIGON/AutoPrereqs'
       version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::CheckChangesHasContent
+      name: '@SCHWIGON/CheckChangesHasContent'
+      version: 0.004
     -
       class: Dist::Zilla::Plugin::NextRelease
       name: '@SCHWIGON/NextRelease'

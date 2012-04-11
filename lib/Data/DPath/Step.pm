@@ -3,7 +3,7 @@ BEGIN {
   $Data::DPath::Step::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::Step::VERSION = '0.45';
+  $Data::DPath::Step::VERSION = '0.46';
 }
 # ABSTRACT: Abstraction for a single Step through a Path
 
