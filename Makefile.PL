@@ -1,32 +1,69 @@
+
 use strict;
 use warnings;
-use inc::Module::Install;
 
-name 'Data-DPath';
-all_from 'lib/Data/DPath.pm';
+use 5.008;
 
-requires 'perl'                       => 5.008;
-requires 'parent'                     => 0;
-requires 'aliased'                    => 0;
-requires 'Class::XSAccessor'          => '1.05';
-requires 'Class::XSAccessor::Array'   => 0;
-requires 'Scalar::Util'               => 0;
-requires 'List::MoreUtils'            => 0;
-requires 'Sub::Exporter'              => 0;
-requires 'Text::Balanced'             => '2.02';
-requires 'Iterator::Util'             => 0;
-requires 'Safe'                       => '2.29';
+use ExtUtils::MakeMaker 6.30;
 
-test_requires 'Test::More'            => 0.88;
-#test_requires 'Test::Aggregate::Nested'; # only for some xt/ tests
-test_requires 'Devel::Size';
-test_requires 'Test::Deep';
-test_requires 'Clone';
 
-author_requires 'Module::Install::AuthorTests';
-author_tests('xt');
 
-repository 'git://github.com/renormalist/data-dpath.git';
-bugtracker 'http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Data-DPath';
+my %WriteMakefileArgs = (
+  "ABSTRACT" => "DPath is not XPath!",
+  "AUTHOR" => "Steffen Schwigon <ss5\@renormalist.net>",
+  "BUILD_REQUIRES" => {
+    "Test::Deep" => 0,
+    "Test::More" => "0.88",
+    "feature" => 0
+  },
+  "CONFIGURE_REQUIRES" => {
+    "ExtUtils::MakeMaker" => "6.30"
+  },
+  "DISTNAME" => "Data-DPath",
+  "EXE_FILES" => [],
+  "LICENSE" => "perl",
+  "NAME" => "Data::DPath",
+  "PREREQ_PM" => {
+    "Class::XSAccessor" => 0,
+    "Class::XSAccessor::Array" => 0,
+    "Data::Dumper" => 0,
+    "Iterator::Util" => 0,
+    "List::MoreUtils" => 0,
+    "List::Util" => 0,
+    "POSIX" => 0,
+    "Safe" => "2.30",
+    "Scalar::Util" => 0,
+    "Sub::Exporter" => 0,
+    "Text::Balanced" => "2.02",
+    "aliased" => 0,
+    "constant" => 0,
+    "strict" => 0,
+    "warnings" => 0
+  },
+  "VERSION" => "0.45",
+  "test" => {
+    "TESTS" => "t/*.t"
+  }
+);
 
-WriteAll;
+
+unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
+  my $br = delete $WriteMakefileArgs{BUILD_REQUIRES};
+  my $pp = $WriteMakefileArgs{PREREQ_PM};
+  for my $mod ( keys %$br ) {
+    if ( exists $pp->{$mod} ) {
+      $pp->{$mod} = $br->{$mod} if $br->{$mod} > $pp->{$mod};
+    }
+    else {
+      $pp->{$mod} = $br->{$mod};
+    }
+  }
+}
+
+delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
+  unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
+
+WriteMakefile(%WriteMakefileArgs);
+
+
+

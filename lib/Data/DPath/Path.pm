@@ -1,4 +1,11 @@
 package Data::DPath::Path;
+BEGIN {
+  $Data::DPath::Path::AUTHORITY = 'cpan:SCHWIGON';
+}
+{
+  $Data::DPath::Path::VERSION = '0.45';
+}
+# ABSTRACT: Abstraction for a DPath
 
 use strict;
 use warnings;
@@ -7,7 +14,7 @@ use Data::Dumper;
 use aliased 'Data::DPath::Step';
 use aliased 'Data::DPath::Point';
 use aliased 'Data::DPath::Context';
-use Text::Balanced 'extract_delimited', 'extract_codeblock';
+use Text::Balanced 2.02 'extract_delimited', 'extract_codeblock';
 
 use Class::XSAccessor
     chained     => 1,
@@ -138,11 +145,17 @@ sub match {
 
 1;
 
-__END__
+
+
+=pod
+
+=encoding utf-8
 
 =head1 NAME
 
-Data::DPath::Path - Abstraction for a DPath.
+Data::DPath::Path - Abstraction for a DPath
+
+=head1 ABOUT
 
 Take a string description, parse it, provide frontend methods.
 
@@ -216,13 +229,17 @@ modules.
 
 =head1 AUTHOR
 
-Steffen Schwigon, C<< <schwigon at cpan.org> >>
+Steffen Schwigon <ss5@renormalist.net>
 
-=head1 COPYRIGHT & LICENSE
+=head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2011 Steffen Schwigon.
+This software is copyright (c) 2012 by Steffen Schwigon.
 
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
+
+
+__END__
+

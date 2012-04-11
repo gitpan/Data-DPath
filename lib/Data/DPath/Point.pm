@@ -1,4 +1,11 @@
 package Data::DPath::Point;
+BEGIN {
+  $Data::DPath::Point::AUTHORITY = 'cpan:SCHWIGON';
+}
+{
+  $Data::DPath::Point::VERSION = '0.45';
+}
+# ABSTRACT: Abstraction for a single reference (a "point") in the datastructure
 
 use strict;
 use warnings;
@@ -13,12 +20,17 @@ use Class::XSAccessor # ::Array
 
 1;
 
-__END__
+
+
+=pod
+
+=encoding utf-8
 
 =head1 NAME
 
-Data::DPath::Point - Abstraction for a single reference (a "point") in
-the datastructure
+Data::DPath::Point - Abstraction for a single reference (a "point") in the datastructure
+
+=head1 ABOUT
 
 Intermediate steps during execution are lists of currently covered
 references in the data structure, i.e., lists of such B<Point>s. The
@@ -43,4 +55,19 @@ Attribute / accessor.
 
 Attribute / accessor.
 
+=head1 AUTHOR
+
+Steffen Schwigon <ss5@renormalist.net>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2012 by Steffen Schwigon.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
+
+
+__END__
+

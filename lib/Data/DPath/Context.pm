@@ -1,4 +1,11 @@
 package Data::DPath::Context;
+BEGIN {
+  $Data::DPath::Context::AUTHORITY = 'cpan:SCHWIGON';
+}
+{
+  $Data::DPath::Context::VERSION = '0.45';
+}
+# ABSTRACT: Abstraction for a current context that enables incremental searches
 
 use strict;
 use warnings;
@@ -11,13 +18,24 @@ use Scalar::Util 'reftype';
 use Data::DPath::Filters;
 use Iterator::Util;
 use List::Util 'min';
+#use Sys::CPU;
 use POSIX;
-use Safe;
+use Safe 2.30;
 
 # run filter expressions in own Safe.pm compartment
 our $COMPARTMENT;
+our $THREADCOUNT;
+
 BEGIN {
+        #$THREADCOUNT = $Data::DPath::PARALLELIZE ? Sys::CPU::cpu_count : 1;
+        #print "THREADCOUNT: $THREADCOUNT\n";
         package Data::DPath::Filters;
+BEGIN {
+  $Data::DPath::Filters::AUTHORITY = 'cpan:SCHWIGON';
+}
+{
+  $Data::DPath::Filters::VERSION = '0.45';
+}
         $COMPARTMENT = Safe->new;
         $COMPARTMENT->permit(qw":base_core");
         # map DPath filter functions into new namespace
@@ -31,8 +49,6 @@ BEGIN {
                                is_reftype
                              ));
 }
-
-our $THREADCOUNT = _num_cpus();
 
 # print "use $]\n" if $] >= 5.010; # allow new-school Perl inside filter expressions
 # eval "use $]" if $] >= 5.010; # allow new-school Perl inside filter expressions
@@ -57,21 +73,6 @@ use constant { HASH             => 'HASH',
                ANCESTOR         => 'ANCESTOR',
                ANCESTOR_OR_SELF => 'ANCESTOR_OR_SELF',
            };
-
-# parallelization utils
-sub _num_cpus
-{
-    open my $fh, '<', '/proc/cpuinfo'
-        or return 1;
-
-    my $cpus = 0;
-    while (defined(my $line = <$fh>)) {
-        $cpus++ if $line =~ /^processor[\s]+:/
-    }
-    close $fh;
-
-    return $cpus || 1;
-}
 
 sub _splice_threads {
     my ($cargo) = @_;
@@ -280,12 +281,12 @@ sub _select_key {
                 no warnings 'uninitialized';
                 next unless defined $point;
                 my $pref = $point->ref;
-                next unless (defined $point && (
-                                                # speed optimization:
-                                                # first try faster ref, then reftype
-                                                ref($$pref)     eq HASH or
-                                                reftype($$pref) eq HASH
-                                               ));
+                next unless (
+                             # speed optimization:
+                             # first try faster ref, then reftype
+                             ref($$pref)     eq HASH or
+                             reftype($$pref) eq HASH
+                             );
                                 # take point as hash, skip undefs
                 my $attrs = Attrs->new(key => $step->part);
                 my $step_points = [];
@@ -476,11 +477,15 @@ sub match {
 
 1;
 
-__END__
+
+
+=pod
+
+=encoding utf-8
 
 =head1 NAME
 
-Data::DPath::Context - Abstraction for a current context that enables incremental searches.
+Data::DPath::Context - Abstraction for a current context that enables incremental searches
 
 =head1 API METHODS
 
@@ -512,7 +517,7 @@ See L<Iterator style|Data::DPath/"Iterator style"> for usage.
 
 It returns the reference to the actual data from the current context's
 first element. This mostly makes sense on contexts returned by
-iterators as there is only one point there. 
+iterators as there is only one point there.
 
 (Having the reference theoretically allows you to even change the data
 on this point. It's not yet clear what impact this has to currently
@@ -576,13 +581,17 @@ modules.
 
 =head1 AUTHOR
 
-Steffen Schwigon, C<< <schwigon at cpan.org> >>
+Steffen Schwigon <ss5@renormalist.net>
 
-=head1 COPYRIGHT & LICENSE
+=head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2011 Steffen Schwigon.
+This software is copyright (c) 2012 by Steffen Schwigon.
 
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
+
+
+__END__
+

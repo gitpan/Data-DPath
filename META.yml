@@ -1,41 +1,203 @@
 ---
 abstract: 'DPath is not XPath!'
 author:
-  - 'Steffen Schwigon, C<< <schwigon at cpan.org> >>'
+  - 'Steffen Schwigon <ss5@renormalist.net>'
 build_requires:
-  Clone: 0
-  Devel::Size: 0
-  ExtUtils::MakeMaker: 6.42
   Test::Deep: 0
   Test::More: 0.88
+  feature: 0
 configure_requires:
-  ExtUtils::MakeMaker: 6.42
-distribution_type: module
-generated_by: 'Module::Install version 1.00'
+  ExtUtils::MakeMaker: 6.30
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 4.300013, CPAN::Meta::Converter version 2.120920'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: Data-DPath
-no_index:
-  directory:
-    - inc
-    - t
-    - xt
 requires:
-  Class::XSAccessor: 1.05
+  Class::XSAccessor: 0
   Class::XSAccessor::Array: 0
+  Data::Dumper: 0
   Iterator::Util: 0
   List::MoreUtils: 0
-  Safe: 2.29
+  List::Util: 0
+  POSIX: 0
+  Safe: 2.30
   Scalar::Util: 0
   Sub::Exporter: 0
   Text::Balanced: 2.02
   aliased: 0
-  parent: 0
+  constant: 0
   perl: 5.008
+  strict: 0
+  warnings: 0
 resources:
-  bugtracker: http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Data-DPath
-  license: http://dev.perl.org/licenses/
+  bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=Data-DPath
+  homepage: http://metacpan.org/release/Data-DPath
   repository: git://github.com/renormalist/data-dpath.git
-version: 0.44
+version: 0.45
+x_Dist_Zilla:
+  plugins:
+    -
+      class: Dist::Zilla::Plugin::GatherDir
+      name: '@SCHWIGON/@Basic/GatherDir'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::PruneCruft
+      name: '@SCHWIGON/@Basic/PruneCruft'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::ManifestSkip
+      name: '@SCHWIGON/@Basic/ManifestSkip'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::MetaYAML
+      name: '@SCHWIGON/@Basic/MetaYAML'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::License
+      name: '@SCHWIGON/@Basic/License'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::Readme
+      name: '@SCHWIGON/@Basic/Readme'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::ExtraTests
+      name: '@SCHWIGON/@Basic/ExtraTests'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::ExecDir
+      name: '@SCHWIGON/@Basic/ExecDir'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::ShareDir
+      name: '@SCHWIGON/@Basic/ShareDir'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::MakeMaker
+      name: '@SCHWIGON/@Basic/MakeMaker'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::Manifest
+      name: '@SCHWIGON/@Basic/Manifest'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::TestRelease
+      name: '@SCHWIGON/@Basic/TestRelease'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::ConfirmRelease
+      name: '@SCHWIGON/@Basic/ConfirmRelease'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::UploadToCPAN
+      name: '@SCHWIGON/@Basic/UploadToCPAN'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::MetaConfig
+      name: '@SCHWIGON/MetaConfig'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::MetaJSON
+      name: '@SCHWIGON/MetaJSON'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::PkgVersion
+      name: '@SCHWIGON/PkgVersion'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::PodSyntaxTests
+      name: '@SCHWIGON/PodSyntaxTests'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::NoTabsTests
+      name: '@SCHWIGON/NoTabsTests'
+      version: 0.01
+    -
+      class: Dist::Zilla::Plugin::PodCoverageTests
+      name: '@SCHWIGON/PodCoverageTests'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::MetaResources
+      name: '@SCHWIGON/MetaResources'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::Authority
+      name: '@SCHWIGON/Authority'
+      version: 1.006
+    -
+      class: Dist::Zilla::Plugin::EOLTests
+      name: '@SCHWIGON/EOLTests'
+      version: 0.02
+    -
+      class: Dist::Zilla::Plugin::PodWeaver
+      name: '@SCHWIGON/PodWeaver'
+      version: 3.101641
+    -
+      class: Dist::Zilla::Plugin::AutoPrereqs
+      name: '@SCHWIGON/AutoPrereqs'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::NextRelease
+      name: '@SCHWIGON/NextRelease'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::Git::CheckFor::CorrectBranch
+      name: '@SCHWIGON/Git::CheckFor::CorrectBranch'
+      version: 0.001
+    -
+      class: Dist::Zilla::Plugin::Git::NextVersion
+      name: '@SCHWIGON/Git::NextVersion'
+      version: 1.120860
+    -
+      class: Dist::Zilla::Plugin::Git::Check
+      name: '@SCHWIGON/@Git/Check'
+      version: 1.120860
+    -
+      class: Dist::Zilla::Plugin::Git::Commit
+      name: '@SCHWIGON/@Git/Commit'
+      version: 1.120860
+    -
+      class: Dist::Zilla::Plugin::Git::Tag
+      name: '@SCHWIGON/@Git/Tag'
+      version: 1.120860
+    -
+      class: Dist::Zilla::Plugin::Git::Push
+      name: '@SCHWIGON/@Git/Push'
+      version: 1.120860
+    -
+      class: Dist::Zilla::Plugin::ManifestSkip
+      name: ManifestSkip
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::FinderCode
+      name: ':InstallModules'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::FinderCode
+      name: ':IncModules'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::FinderCode
+      name: ':TestFiles'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::FinderCode
+      name: ':ExecFiles'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::FinderCode
+      name: ':ShareFiles'
+      version: 4.300013
+    -
+      class: Dist::Zilla::Plugin::FinderCode
+      name: ':MainModule'
+      version: 4.300013
+  zilla:
+    class: Dist::Zilla::Dist::Builder
+    config:
+      is_trial: 0
+    version: 4.300013
+x_authority: cpan:SCHWIGON

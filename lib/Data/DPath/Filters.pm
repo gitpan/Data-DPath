@@ -1,4 +1,11 @@
 package Data::DPath::Filters;
+BEGIN {
+  $Data::DPath::Filters::AUTHORITY = 'cpan:SCHWIGON';
+}
+{
+  $Data::DPath::Filters::VERSION = '0.45';
+}
+# ABSTRACT: Magic functions available inside filter conditions
 
 use strict;
 use warnings;
@@ -24,15 +31,16 @@ sub size()
 {
         no warnings 'uninitialized';
 
+        return -1 unless defined $_;
         # speed optimization: first try faster ref, then reftype
         # ref
-        return scalar @$_      if (defined $_ and ref $_  eq ARRAY);
-        return scalar keys %$_ if (defined $_ and ref $_  eq HASH);
-        return  1              if (defined $_ and ref \$_ eq SCALAR);
+        return scalar @$_      if ref $_  eq ARRAY;
+        return scalar keys %$_ if ref $_  eq HASH;
+        return  1              if ref \$_ eq SCALAR;
         # reftype
-        return scalar @$_      if (defined $_ and Scalar::Util::reftype $_  eq ARRAY);
-        return scalar keys %$_ if (defined $_ and Scalar::Util::reftype $_  eq HASH);
-        return  1              if (defined $_ and Scalar::Util::reftype \$_ eq SCALAR);
+        return scalar @$_      if Scalar::Util::reftype $_  eq ARRAY;
+        return scalar keys %$_ if Scalar::Util::reftype $_  eq HASH;
+        return  1              if Scalar::Util::reftype \$_ eq SCALAR;
         # else
         return -1;
 }
@@ -69,9 +77,11 @@ sub is_reftype($) {
 
 1;
 
-__END__
+
 
 =pod
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -133,16 +143,20 @@ provided argument $EXPECTED_TYPE and returns true/false.
 
 =head1 AUTHOR
 
-Steffen Schwigon, C<< <schwigon at cpan.org> >>
+Steffen Schwigon <ss5@renormalist.net>
 
-=head1 COPYRIGHT & LICENSE
+=head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2011 Steffen Schwigon.
+This software is copyright (c) 2012 by Steffen Schwigon.
 
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
+
+
+__END__
+
 
 # sub parent, Eltern-Knoten liefern
 # nextchild, von parent und mir selbst

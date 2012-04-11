@@ -1,13 +1,19 @@
 package Data::DPath;
+BEGIN {
+  $Data::DPath::AUTHORITY = 'cpan:SCHWIGON';
+}
+{
+  $Data::DPath::VERSION = '0.45';
+}
+# ABSTRACT: DPath is not XPath!
 
 use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '0.44';
-
 our $DEBUG = 0;
 our $USE_SAFE = 1;
+our $PARALLELIZE = 0;
 
 use Data::DPath::Path;
 use Data::DPath::Context;
@@ -56,9 +62,11 @@ sub match {
 
 1;
 
-__END__
+
 
 =pod
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -304,7 +312,6 @@ benchmarked.)
  
  ---------------------------------------------------------------------
 
-
 =head3 Summary
 
 Generally L<Data::Path|Data::Path> is for simpler use cases but does
@@ -374,7 +381,6 @@ Does a C<match> of a dpath against a data structure.
 Due to the B<matching> nature of DPath the operator C<~~> should make
 your code more readable.
 
-
 =head1 THE DPATH LANGUAGE
 
 =head2 Synopsis
@@ -420,7 +426,7 @@ this step, all starting at the root of the data structure.
 
 =over 4
 
-=item * C<//>
+=item C<//>
 
 Anchors to any hash or array inside the data structure below the
 currently found points (or the root).
@@ -436,26 +442,26 @@ but can also happen inside paths to skip middle parts:
 
 This allows any way between C<BBB> and C<FARAWAY>.
 
-=item * C<*>
+=item C<*>
 
 Matches one step of any value relative to the current points (or the
 root). This step might be any hash key or all values of an array in
 the step before.
 
-=item * C<..>
+=item C<..>
 
 Matches the parent element relative to the current points.
 
-=item * C<::ancestor>
+=item C<::ancestor>
 
 Matches all ancestors (parent, grandparent, etc.) of the current node.
 
-=item * C<::ancestor-or-self>
+=item C<::ancestor-or-self>
 
 Matches all ancestors (parent, grandparent, etc.) of the current node
 and the current node itself.
 
-=item * C<.>
+=item C<.>
 
 A "no step". This keeps passively at the current points, but allows
 incrementally attaching filters to points or to otherwise hard to
@@ -472,7 +478,7 @@ killer expression and can more easily maintain them.
 
 See L<Filters|Filters> for more details on filters.
 
-=item * If you need those special elements to be not special but as
+=item If you need those special elements to be not special but as
 key names, just quote them:
 
  /"*"/
@@ -537,8 +543,6 @@ So what you often want in DPath is to look at the elements B<below>
  }
 
 the path "/affe/*[2]" would return "Schimpanse".
-
-
 
 =head2 Filters
 
@@ -703,7 +707,6 @@ Now put quotes around that to use it as DPath hash key:
 and if you specify this in a Perl program you need to additionally
 escape the backslashes (i.e., double their count):
 
-
   "\"EE\E5\\\\\\""
 
 As you can see, strangely, this backslash escaping is only needed on
@@ -810,58 +813,6 @@ Steffen Schwigon, C<< <schwigon at cpan.org> >>
 
 Florian Ragwitz (cleaner exports, $_ scoping, general perl consultant)
 
-=head1 BUGS
-
-Please report any bugs or feature requests to C<bug-data-dpath at
-rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Data-DPath>. I will
-be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
-
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc Data::DPath
-
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Data-DPath>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Data-DPath>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Data-DPath>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Data-DPath>
-
-=back
-
-
-=head1 REPOSITORY
-
-The public repository is hosted on github:
-
-  git clone git://github.com/renormalist/data-dpath.git
-
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2008-2011 Steffen Schwigon.
-
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
 =head1 SEE ALSO
 
 There are other modules on CPAN which are related to finding elements
@@ -871,26 +822,39 @@ in data structures.
 
 =item Data::Path
 
-http://search.cpan.org/dist/Data-Path
+http://metacpan.org/release/Data-Path
 
 =item XML::XPathEngine
 
-http://search.cpan.org/dist/XML-XPathEngine
+http://metacpan.org/release/XML-XPathEngine
 
 =item Tree::XPathEngine
 
-http://search.cpan.org/dist/Tree-XPathEngine
+http://metacpan.org/release/Tree-XPathEngine
 
 =item Class::XPath
 
-http://search.cpan.org/dist/Class-XPath
+http://metacpan.org/release/Class-XPath
 
 =item Hash::Path
 
-http://search.cpan.org/dist/Hash-Path
+http://metacpan.org/release/Hash-Path
 
 =back
 
+=head1 AUTHOR
+
+Steffen Schwigon <ss5@renormalist.net>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2012 by Steffen Schwigon.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
 
-# End of Data::DPath
+
+__END__
+
