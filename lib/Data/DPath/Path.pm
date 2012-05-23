@@ -3,7 +3,7 @@ BEGIN {
   $Data::DPath::Path::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::Path::VERSION = '0.46';
+  $Data::DPath::Path::VERSION = '0.47';
 }
 # ABSTRACT: Abstraction for a DPath
 

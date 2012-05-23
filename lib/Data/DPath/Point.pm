@@ -3,7 +3,7 @@ BEGIN {
   $Data::DPath::Point::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::Point::VERSION = '0.46';
+  $Data::DPath::Point::VERSION = '0.47';
 }
 # ABSTRACT: Abstraction for a single reference (a "point") in the datastructure
 

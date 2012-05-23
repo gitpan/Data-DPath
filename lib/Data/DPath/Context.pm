@@ -3,7 +3,7 @@ BEGIN {
   $Data::DPath::Context::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::Context::VERSION = '0.46';
+  $Data::DPath::Context::VERSION = '0.47';
 }
 # ABSTRACT: Abstraction for a current context that enables incremental searches
 
@@ -20,7 +20,7 @@ use Iterator::Util;
 use List::Util 'min';
 #use Sys::CPU;
 use POSIX;
-use Safe 2.30;
+use Safe;
 
 # run filter expressions in own Safe.pm compartment
 our $COMPARTMENT;
@@ -34,7 +34,7 @@ BEGIN {
   $Data::DPath::Filters::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::Filters::VERSION = '0.46';
+  $Data::DPath::Filters::VERSION = '0.47';
 }
         $COMPARTMENT = Safe->new;
         $COMPARTMENT->permit(qw":base_core");

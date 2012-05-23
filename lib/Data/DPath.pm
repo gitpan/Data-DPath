@@ -3,7 +3,7 @@ BEGIN {
   $Data::DPath::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::VERSION = '0.46';
+  $Data::DPath::VERSION = '0.47';
 }
 # ABSTRACT: DPath is not XPath!
 
