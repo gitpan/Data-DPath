@@ -1,9 +1,11 @@
 package Data::DPath;
+# git description: v0.47-5-g23af578
+
 BEGIN {
   $Data::DPath::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::VERSION = '0.47';
+  $Data::DPath::VERSION = '0.48';
 }
 # ABSTRACT: DPath is not XPath!
 
@@ -62,7 +64,7 @@ sub match {
 
 1;
 
-
+__END__
 
 =pod
 
@@ -641,7 +643,7 @@ There are 4 special characters: the slash C</>, paired brackets C<[]>,
 the double-quote C<"> and the backslash C<\>. They are needed and
 explained in a logical order.
 
-Path parts are divided by the slash </>.
+Path parts are divided by the slash C</>.
 
 A path part can be extended by a filter with appending an expression
 in brackets C<[]>.
@@ -854,7 +856,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
-

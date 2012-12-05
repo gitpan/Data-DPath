@@ -3,7 +3,7 @@ BEGIN {
   $Data::DPath::Step::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::Step::VERSION = '0.47';
+  $Data::DPath::Step::VERSION = '0.48';
 }
 # ABSTRACT: Abstraction for a single Step through a Path
 
@@ -21,7 +21,7 @@ use Class::XSAccessor::Array
 
 1;
 
-
+__END__
 
 =pod
 
@@ -65,7 +65,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
-
