@@ -36,7 +36,7 @@ resources:
   bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=Data-DPath
   homepage: http://metacpan.org/release/Data-DPath
   repository: git://github.com/renormalist/data-dpath.git
-version: 0.48
+version: 0.49
 x_Dist_Zilla:
   perl:
     version: 5.017006

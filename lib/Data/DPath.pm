@@ -1,11 +1,11 @@
 package Data::DPath;
-# git description: v0.47-5-g23af578
+# git description: v0.48-1-g9544ca0
 
 BEGIN {
   $Data::DPath::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::VERSION = '0.48';
+  $Data::DPath::VERSION = '0.49';
 }
 # ABSTRACT: DPath is not XPath!
 

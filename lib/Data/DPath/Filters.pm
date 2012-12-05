@@ -3,7 +3,7 @@ BEGIN {
   $Data::DPath::Filters::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::Filters::VERSION = '0.48';
+  $Data::DPath::Filters::VERSION = '0.49';
 }
 # ABSTRACT: Magic functions available inside filter conditions
 

@@ -3,7 +3,7 @@ BEGIN {
   $Data::DPath::Context::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::Context::VERSION = '0.48';
+  $Data::DPath::Context::VERSION = '0.49';
 }
 # ABSTRACT: Abstraction for a current context that enables incremental searches
 
@@ -34,7 +34,7 @@ BEGIN {
   $Data::DPath::Filters::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::Filters::VERSION = '0.48';
+  $Data::DPath::Filters::VERSION = '0.49';
 }
         $COMPARTMENT = Safe->new;
         $COMPARTMENT->permit(qw":base_core");

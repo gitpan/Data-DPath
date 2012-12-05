@@ -67,7 +67,7 @@
          "web" : "http://github.com/renormalist/data-dpath"
       }
    },
-   "version" : "0.48",
+   "version" : "0.49",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.017006"
