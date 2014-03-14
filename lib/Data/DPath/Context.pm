@@ -3,7 +3,7 @@ BEGIN {
   $Data::DPath::Context::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::Context::VERSION = '0.49';
+  $Data::DPath::Context::VERSION = '0.50';
 }
 # ABSTRACT: Abstraction for a current context that enables incremental searches
 
@@ -34,7 +34,7 @@ BEGIN {
   $Data::DPath::Filters::AUTHORITY = 'cpan:SCHWIGON';
 }
 {
-  $Data::DPath::Filters::VERSION = '0.49';
+  $Data::DPath::Filters::VERSION = '0.50';
 }
         $COMPARTMENT = Safe->new;
         $COMPARTMENT->permit(qw":base_core");
@@ -102,7 +102,7 @@ sub _any
         no warnings 'uninitialized';
 
         $in = defined $in ? $in : [];
-        return @$out unless @$in;
+        return $out unless @$in;
 
         my @newin;
         my @newout;
@@ -267,8 +267,8 @@ sub _select_anywhere {
         # '//'
         # all hash/array nodes of a data structure
         foreach my $point (@$current_points) {
-                my $step_points = [_any([], [ $point ], $lookahead_key), $point];
-                push @$new_points, @{$self->_filter_points($step, $step_points)};
+                my @step_points = (@{_any([], [ $point ], $lookahead_key)}, $point);
+                push @$new_points, @{$self->_filter_points($step, \@step_points)};
         }
 }
 
@@ -585,7 +585,7 @@ Steffen Schwigon <ss5@renormalist.net>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by Steffen Schwigon.
+This software is copyright (c) 2014 by Steffen Schwigon.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

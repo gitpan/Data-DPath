@@ -9,7 +9,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300028, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Dist::Zilla version 4.300034, CPAN::Meta::Converter version 2.130880'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -36,83 +36,83 @@ resources:
   bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=Data-DPath
   homepage: http://metacpan.org/release/Data-DPath
   repository: git://github.com/renormalist/data-dpath.git
-version: 0.49
+version: 0.50
 x_Dist_Zilla:
   perl:
-    version: 5.017006
+    version: 5.016003
   plugins:
     -
       class: Dist::Zilla::Plugin::GatherDir
       name: '@SCHWIGON/@Basic/GatherDir'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::PruneCruft
       name: '@SCHWIGON/@Basic/PruneCruft'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::ManifestSkip
       name: '@SCHWIGON/@Basic/ManifestSkip'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::MetaYAML
       name: '@SCHWIGON/@Basic/MetaYAML'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::License
       name: '@SCHWIGON/@Basic/License'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::Readme
       name: '@SCHWIGON/@Basic/Readme'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::ExtraTests
       name: '@SCHWIGON/@Basic/ExtraTests'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::ExecDir
       name: '@SCHWIGON/@Basic/ExecDir'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::ShareDir
       name: '@SCHWIGON/@Basic/ShareDir'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::MakeMaker
       name: '@SCHWIGON/@Basic/MakeMaker'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::Manifest
       name: '@SCHWIGON/@Basic/Manifest'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::TestRelease
       name: '@SCHWIGON/@Basic/TestRelease'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::ConfirmRelease
       name: '@SCHWIGON/@Basic/ConfirmRelease'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::UploadToCPAN
       name: '@SCHWIGON/@Basic/UploadToCPAN'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::MetaConfig
       name: '@SCHWIGON/MetaConfig'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::MetaJSON
       name: '@SCHWIGON/MetaJSON'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::PkgVersion
       name: '@SCHWIGON/PkgVersion'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::PodSyntaxTests
       name: '@SCHWIGON/PodSyntaxTests'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::NoTabsTests
       name: '@SCHWIGON/NoTabsTests'
@@ -120,11 +120,11 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::PodCoverageTests
       name: '@SCHWIGON/PodCoverageTests'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::MetaResources
       name: '@SCHWIGON/MetaResources'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::Authority
       name: '@SCHWIGON/Authority'
@@ -140,7 +140,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::AutoPrereqs
       name: '@SCHWIGON/AutoPrereqs'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::Git::Describe
       name: '@SCHWIGON/Git::Describe'
@@ -152,7 +152,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::NextRelease
       name: '@SCHWIGON/NextRelease'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::Git::CheckFor::CorrectBranch
       name: '@SCHWIGON/Git::CheckFor::CorrectBranch'
@@ -160,27 +160,27 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::Git::NextVersion
       name: '@SCHWIGON/Git::NextVersion'
-      version: 2.004
+      version: 2.013
     -
       class: Dist::Zilla::Plugin::Git::Check
       name: '@SCHWIGON/@Git/Check'
-      version: 2.004
+      version: 2.013
     -
       class: Dist::Zilla::Plugin::Git::Commit
       name: '@SCHWIGON/@Git/Commit'
-      version: 2.004
+      version: 2.013
     -
       class: Dist::Zilla::Plugin::Git::Tag
       name: '@SCHWIGON/@Git/Tag'
-      version: 2.004
+      version: 2.013
     -
       class: Dist::Zilla::Plugin::Git::Push
       name: '@SCHWIGON/@Git/Push'
-      version: 2.004
+      version: 2.013
     -
       class: Dist::Zilla::Plugin::ManifestSkip
       name: ManifestSkip
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::Prereqs
       config:
@@ -188,34 +188,34 @@ x_Dist_Zilla:
           phase: runtime
           type: requires
       name: Prereqs
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':InstallModules'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':IncModules'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':TestFiles'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':ExecFiles'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':ShareFiles'
-      version: 4.300028
+      version: 4.300034
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':MainModule'
-      version: 4.300028
+      version: 4.300034
   zilla:
     class: Dist::Zilla::Dist::Builder
     config:
       is_trial: 0
-    version: 4.300028
+    version: 4.300034
 x_authority: cpan:SCHWIGON
